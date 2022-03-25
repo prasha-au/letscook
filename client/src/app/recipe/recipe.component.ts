@@ -15,10 +15,10 @@ import { map, NEVER, Observable, startWith } from 'rxjs';
     <div  class="h-100" [ngSwitch]="recipe">
 
 
-      <div *ngSwitchCase="recipe == 'loading'">
+      <div *ngSwitchCase="'loading'">
         Loading...
       </div>
-      <div *ngSwitchCase="recipe == 'notfound'">
+      <div *ngSwitchCase="'notfound'">
         Recipe not found!
       </div>
       <app-recipe-view *ngSwitchDefault [recipe]="$any(recipe)"></app-recipe-view>

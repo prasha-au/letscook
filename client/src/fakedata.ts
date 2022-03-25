@@ -1,6 +1,7 @@
 
 
 export const DATA = {
+  "url": "https://dinnerthendessert.com/mongolian-beef/",
   "name": "Mongolian Beef",
   "ingredients": [
     {

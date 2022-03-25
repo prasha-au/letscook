@@ -18,9 +18,18 @@ export interface InstructionGroup {
 
 
 export interface Recipe {
+  url: string;
   name: string;
   ingredients: IngredientGroup[];
   instructions: InstructionGroup[];
   notes: string[];
 }
 
+
+
+
+export interface ParseRequest {
+  url: string;
+  status: 'pending' | 'active' | 'done';
+  success?: boolean;
+}

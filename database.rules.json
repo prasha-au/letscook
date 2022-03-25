@@ -9,6 +9,10 @@
     "recipes": {
       ".read": true,
       ".write": false
+    },
+    "parse_requests": {
+      ".read": true,
+      ".write": false
     }
   }
 }
