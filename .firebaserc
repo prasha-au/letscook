@@ -1,0 +1,14 @@
+{
+    "targets": {
+    "letscook-423ea": {
+      "hosting": {
+        "letscook": [
+          "letscook-423ea"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "letscook-423ea"
+  }
+}
