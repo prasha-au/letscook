@@ -66,7 +66,7 @@ export class HomeComponent implements OnInit {
   }
 
   submitUrl() {
-    this.router.navigate(['/load'], { queryParams: { url: this.url } });
+    this.router.navigate(['/load'], { queryParams: { url: this.url }, skipLocationChange: true });
   }
 
 
