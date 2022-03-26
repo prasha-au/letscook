@@ -7,8 +7,7 @@ import { IngredientGroup } from '../../../../interfaces';
   template: `
 
   <div class="container">
-
-    <div *ngFor="let group of ingredientGroups; let groupIdx = index;">
+    <div *ngFor="let group of ingredientGroups; let groupIdx = index;" class="mb-4">
       <h5 *ngIf="group.name">{{group.name}}</h5>
       <div *ngFor="let ingredient of group.ingredients; let i = index">
         <div class="form-check">
@@ -18,7 +17,6 @@ import { IngredientGroup } from '../../../../interfaces';
             {{ingredient.name}}
           </label>
         </div>
-
       </div>
     </div>
 

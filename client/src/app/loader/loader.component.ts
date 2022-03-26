@@ -1,60 +1,46 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { firstValueFrom, NEVER, Observable } from 'rxjs';
+import { filter, firstValueFrom, NEVER } from 'rxjs';
 import { ParseRequest, ResolvedUrl } from '../../../../interfaces';
 import { DataService } from '../data.service';
 
-
-
-type LoadState = 'initializing' | 'checking_for_existing' | 'requesting' | 'processing' | 'redirecting';
-
+type LoadState = 'checking_for_existing' | 'requesting' | 'redirecting' | 'error';
 
 @Component({
   selector: 'app-loader',
   template: `
-    <div class="d-flex w-100 h-100">
-      <div class="container mt-5">
-        <div *ngIf="!resolvedUrl">
-          Unable to load {{rawUrl}}
+    <div class="d-flex h-100 w-100 flex-column justify-content-center align-items-center">
+
+      <div *ngIf="!resolvedUrl">
+        Unable to load {{rawUrl}}
+      </div>
+
+      <div *ngIf="resolvedUrl" [ngSwitch]="loadState" class="text-center">
+        <div *ngSwitchCase="'checking_for_existing'">
+          <div class="spinner-border text-light" role="status" style="width: 10rem; height: 10rem;"></div>
+          <p class="lead text-center mt-3">Loading</p>
         </div>
-
-        <div *ngIf="resolvedUrl" [ngSwitch]="loadState">
-          <div *ngSwitchCase="'checking_for_existing'">
-            Loading...
-          </div>
-          <div *ngSwitchCase="'redirecting'">
-            Redirecting...
-          </div>
-          <div *ngSwitchCase="'requesting'">
-            Redirecting...
-          </div>
-
-
-          <div *ngSwitchCase="'processing'">
-
-            <div>We are gathering information from {{resolvedUrl.url}}</div>
-
-            <div *ngIf="processingStatus | async; let status">
-
-              <div [ngSwitch]="status.status">
-
-                <span *ngSwitchCase="'pending'">pending...</span>
-                <span *ngSwitchCase="'active'">Active...</span>
-                <span *ngSwitchCase="'done'">
-                  <span *ngIf="status.success">Done!</span>
-                  <span *ngIf="!status.success">Failed!</span>
-                </span>
-              </div>
-
-            </div>
-
-          </div>
+        <div *ngSwitchCase="'redirecting'">
+          <div class="spinner-border text-light" role="status" style="width: 10rem; height: 10rem;"></div>
+          <p class="lead text-center mt-3">Redirecting</p>
         </div>
-
-
+        <div *ngSwitchCase="'requesting'">
+          <div class="spinner-border text-light" role="status" style="width: 10rem; height: 10rem;"></div>
+          <p class="lead text-center mt-3">Requesting your recipe</p>
+        </div>
+        <div *ngSwitchCase="'error'" class="text-center">
+          <h2>Ooops!</h2>
+          <p class="lead">
+            We were unable to fetch details from the link you provided.<br />
+          </p>
+          <p class="lead">
+            <a [routerLink]="['/']" class="btn btn-secondary border-white bg-white text-black">Back Home</a>
+          </p>
+        </div>
 
       </div>
     </div>
+
   `,
   styles: [
   ]
@@ -66,8 +52,6 @@ export class LoaderComponent implements OnInit {
 
   public loadState?: LoadState;
 
-
-  public processingStatus: Observable<ParseRequest | null> = NEVER;
 
   constructor(
     private route: ActivatedRoute,
@@ -87,28 +71,35 @@ export class LoaderComponent implements OnInit {
     }
     this.resolvedUrl = resolvedUrl;
 
-
     this.loadState = 'checking_for_existing';
-    this.processingStatus = this.dataService.getRecipeParseStatus(resolvedUrl.id);
+    const processingStatus = this.dataService.getRecipeParseStatus(resolvedUrl.id);
 
 
-    const existingStatus = await firstValueFrom(this.processingStatus);
+    const existingStatus = await firstValueFrom(processingStatus);
     if (existingStatus?.status === 'done' && existingStatus.success) {
       this.loadState = 'redirecting';
       await this.router.navigate(['/recipe', resolvedUrl.id]);
       return;
     }
 
+
+    this.loadState = 'requesting';
     if (existingStatus === null) {
-      this.loadState = 'requesting';
-      await this.dataService.requestParse(resolvedUrl.id);
+      await this.dataService.requestParse(resolvedUrl);
     }
 
-    this.loadState = 'processing';
+
+    const doneStatus = await firstValueFrom(processingStatus.pipe(
+      filter((v): v is ParseRequest & { success: boolean } => v?.status === 'done')
+    ));
 
 
-
-
+    if (doneStatus.success) {
+      this.loadState = 'redirecting';
+      await this.router.navigate(['/recipe', resolvedUrl.id]);
+    } else {
+      this.loadState = 'error';
+    }
 
   }
 

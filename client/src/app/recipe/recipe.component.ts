@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DATA } from '../../fakedata';
 import { Recipe } from '../../../../interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
@@ -10,30 +9,32 @@ import { map, NEVER, Observable, startWith } from 'rxjs';
   selector: 'app-recipe',
   template: `
 
-
   <div class="h-100" *ngIf="recipeObs| async; let recipe;">
     <div  class="h-100" [ngSwitch]="recipe">
 
+      <div *ngSwitchCase="'loading'" class="d-flex h-100 w-100 flex-column justify-content-center align-items-center">
+        <div class="spinner-border text-light" role="status" style="width: 10rem; height: 10rem;"></div>
+        <p class="lead text-center mt-3">Loading</p>
+      </div>
 
-      <div *ngSwitchCase="'loading'">
-        Loading...
+      <div *ngSwitchCase="'notfound'" class="d-flex h-100 w-100 flex-column justify-content-center align-items-center">
+        <h2>Not Found!</h2>
+        <p class="lead">The recipe you are looking for was not found.</p>
+        <p class="lead">
+          <a href="#" class="btn btn-secondary border-white bg-white text-black">Back Home</a>
+        </p>
       </div>
-      <div *ngSwitchCase="'notfound'">
-        Recipe not found!
-      </div>
+
       <app-recipe-view *ngSwitchDefault [recipe]="$any(recipe)"></app-recipe-view>
 
     </div>
 
   </div>
 
-
   `,
   styles: [],
 })
 export class RecipeComponent implements OnInit {
-
-  public recipe?: Recipe = DATA;
   public recipeObs: Observable<Recipe | 'loading' | 'notfound'> = NEVER;
 
 
@@ -51,7 +52,7 @@ export class RecipeComponent implements OnInit {
     this.recipeObs = this.dataService.getRecipe(recipeId).pipe(
       map(v => v === null ? 'notfound' : v),
       startWith('loading' as const),
-    )
+    );
   }
 
 // http://localhost:4200/recipe/dinnerthendessert_com_mongolian-beef

@@ -6,15 +6,11 @@ import { Component, Input, OnInit } from '@angular/core';
   template: `
 
   <div class="container">
-
     <div>
       <ul>
         <li *ngFor="let note of notes">{{note}}</li>
       </ul>
     </div>
-
-    <div>This recipe is from xxxxx</div>
-
   </div>
 
   `,

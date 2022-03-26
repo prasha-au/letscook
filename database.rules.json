@@ -1,18 +1,26 @@
 {
   "rules": {
-    "users": {
+    "user": {
       "$uid": {
         ".read": "$uid === auth.uid",
         ".write": false
       }
     },
-    "recipes": {
+    "recipe": {
       ".read": true,
       ".write": false
     },
-    "parse_requests": {
+    "recipe_metadata": {
       ".read": true,
       ".write": false
+    },
+    "parse_request": {
+      ".read": true,
+      "$id": {
+        ".write": "!data.exists()",
+        "url": { ".validate": true },
+        "$other": { ".validate": false }
+      }
     }
   }
 }

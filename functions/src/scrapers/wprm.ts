@@ -1,5 +1,6 @@
 import {Page} from 'puppeteer';
 import {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
+import {tryCleanupImageUrl} from '../helpers';
 
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   await page.goto(url, {waitUntil: 'domcontentloaded'});
@@ -36,25 +37,30 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
       name: instructionNameNode ? await instructionNameNode.evaluate((e) => e.textContent) : undefined,
       steps: (await Promise.all(stepNodes.map(async (v) => {
         return await v.evaluate((e) => e.textContent);
-      }))).filter((v) => v !== null),
+      }))).filter((v) => v !== undefined),
     };
   }))).filter((v) => {
     return !!v.name || v.steps.length > 0;
   }) as InstructionGroup[];
 
   const noteNodes = await page.$x('//div[contains(@class,"wprm-recipe-notes")]/span');
-  const notes = await Promise.all(noteNodes.map(async (noteNode) => {
-    return noteNode.evaluate((e) => e.textContent);
-  }));
+  const notes = (await Promise.all(noteNodes.map(async (noteNode) => {
+    return (await noteNode.evaluate((e) => e.textContent)) ?? undefined;
+  }))).filter((v) => v !== undefined);
 
 
   const nameNode = await page.$('h2.wprm-recipe-name');
 
+  const imageNode = await page.$x('//div[contains(@class, "wprm-recipe-image")]//img');
+  const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('src'));
+  const cleanedImageSrc = imageSrc ? tryCleanupImageUrl(imageSrc) : undefined;
+
   return {
     url,
     name: await nameNode?.evaluate((e) => e.textContent) ?? 'Unknown Name',
+    image: cleanedImageSrc,
     ingredients,
     instructions,
-    notes: notes.filter((v): v is string => v !== null),
+    notes: notes.filter((v): v is string => v !== undefined),
   };
 }

@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Database, object, objectVal, ref } from '@angular/fire/database';
-import { Functions, httpsCallableData } from '@angular/fire/functions';
-import { firstValueFrom, map, Observable } from 'rxjs';
-import { ParseRequest, Recipe, ResolvedUrl } from '../../../interfaces';
+import { Database, limitToLast, object, objectVal, orderByKey, query, ref, set } from '@angular/fire/database';
+import { map, Observable } from 'rxjs';
+import { ParseRequest, Recipe, ResolvedUrl, TableName } from '../../../interfaces';
 
 
 @Injectable({
@@ -11,27 +10,34 @@ import { ParseRequest, Recipe, ResolvedUrl } from '../../../interfaces';
 export class DataService {
 
   constructor(
-    private readonly database: Database,
-    private functions: Functions
+    private readonly database: Database
   ) { }
 
 
   public getRecipe(id: string): Observable<Recipe> {
-    return objectVal(ref(this.database, `recipes/${id}`));
+    return objectVal(ref(this.database, `${TableName.RECIPE}/${id}`));
   }
 
 
   public getRecipeParseStatus(id: string): Observable<ParseRequest | null> {
-    return object(ref(this.database, `parse_requests/${id}`)).pipe(
+    return object(ref(this.database, `${TableName.PARSE_REQUEST}/${id}`)).pipe(
       map(v => v.snapshot.val()),
     );
   }
 
 
-  private readonly requestParseCallable = httpsCallableData(this.functions, 'supersuper');
-  public async requestParse(url: string): Promise<void> {
-    await firstValueFrom(this.requestParseCallable({ url }));
-    return;
+  public async requestParse(resolvedUrl: ResolvedUrl): Promise<void> {
+    await set(ref(this.database, `${TableName.PARSE_REQUEST}/${resolvedUrl.id}`), { url: resolvedUrl.url });
+  }
+
+
+  public getRandomRecipes(): Observable<{ id: string; name: string; url: string }[]> {
+    return objectVal<Record<string, string[]>>(query(ref(this.database, TableName.RECIPE_METADATA), orderByKey(), limitToLast(10))).pipe(
+      map(data => {
+        console.log('data', data);
+        return [];
+      })
+    );
   }
 
 

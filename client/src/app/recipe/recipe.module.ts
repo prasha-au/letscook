@@ -5,6 +5,7 @@ import { IngredientsComponent } from './ingredients.component';
 import { InstructionsComponent } from './instructions.component';
 import { NotesComponent } from './notes.component';
 import { RecipeViewComponent } from './reciepe-view.component';
+import { RouterModule } from '@angular/router';
 
 
 
@@ -17,7 +18,8 @@ import { RecipeViewComponent } from './reciepe-view.component';
     NotesComponent,
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    RouterModule
   ]
 })
 export class RecipeModule { }

@@ -1,4 +1,5 @@
 import {ResolvedUrl} from '../../interfaces';
+import * as _ from 'lodash';
 
 
 export const EXTRA_PAGE_HEADERS = {
@@ -23,3 +24,22 @@ export function resolveUrl(query: string): ResolvedUrl | null {
   };
 }
 
+
+export function cleanUndefinedValues<T>(value: T): T {
+  if (_.isPlainObject(value)) {
+    return _(value as Record<string, unknown>).mapValues((v) => cleanUndefinedValues(v)).pickBy((v) => v !== undefined).value() as unknown as T;
+  } else if (Array.isArray(value)) {
+    return value.map((v) => cleanUndefinedValues(v)).filter((v) => v !== undefined) as unknown as T;
+  } else {
+    return value;
+  }
+}
+
+export function tryCleanupImageUrl(rawUrl: string): string {
+  try {
+    const url = new URL(rawUrl);
+    return `${url.origin}${url.pathname}`;
+  } catch (e) {
+    return rawUrl;
+  }
+}

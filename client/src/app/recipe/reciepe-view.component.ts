@@ -8,9 +8,17 @@ import { Recipe } from '../../../../interfaces'
   template: `
 
   <div class="d-flex h-100 flex-column">
-    <main class="h-100 d-flex flex-column">
 
-      <h2 class="text-center mt-4 mb-3">Massaman Curry!</h2>
+
+    <div *ngIf="recipe.image" class="background" [style.backgroundImage]="'url('+recipe?.image+')'"></div>
+
+    <main class="h-100 d-flex flex-column main">
+
+      <div class="w-100 mt-4 mb-3">
+        <a [routerLink]="['/']" type="button" class="btn btn-sm btn-outline-light float-start position-absolute ms-3">Back</a>
+        <h2 class="text-center">{{recipe.name}}</h2>
+      </div>
+
 
       <div class="text-center mb-3">
         <!-- <a>prev</a> -->
@@ -18,20 +26,21 @@ import { Recipe } from '../../../../interfaces'
         <!-- <a>next</a> -->
       </div>
 
-      <div class="h-100" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
+      <div class="h-100 overflow-auto" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
         <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe?.ingredients"></app-recipe-ingredients>
 
         <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe?.instructions"></app-recipe-instructions>
 
         <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe?.notes"></app-recipe-notes>
       </div>
-
     </main>
   </div>
 
-
   `,
   styles: [
+    '.background { z-index: 0; position: fixed; width: 100vw; height: 100vh; filter: blur(8px); background-size: cover; }',
+    '.background:after { content: ""; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); }',
+    '.main { z-index: 1; }'
   ],
   animations: [
     trigger('animTabs', [
@@ -42,7 +51,7 @@ import { Recipe } from '../../../../interfaces'
 })
 export class RecipeViewComponent implements OnInit {
 
-  @Input() recipe?: Recipe;
+  @Input() recipe!: Recipe;
 
   public animationState: number = 1;
 
