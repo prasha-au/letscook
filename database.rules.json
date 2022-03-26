@@ -12,7 +12,8 @@
     },
     "recipe_metadata": {
       ".read": true,
-      ".write": false
+      ".write": false,
+      ".indexOn": ["timestamp"]
     },
     "parse_request": {
       ".read": true,

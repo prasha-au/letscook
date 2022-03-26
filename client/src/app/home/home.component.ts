@@ -11,7 +11,7 @@ import { UserService } from '../user.service';
     <div class="text-center d-flex w-100 h-100">
       <div class="background"></div>
       <div class="container p-6 p-3">
-        <img class="mt-4 mb-5" src="assets/logo_white.png" />
+        <img class="mt-4 mb-5 mw-100 px-3" src="assets/logo_white.png" />
         <div>
           <p class="lead">Enter a link and get started!</p>
           <p class="lead">
