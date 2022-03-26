@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import {ParseRequest, ReciepeMetadata, Recipe, ResolvedUrl, TableName} from '../../interfaces';
+import {ParseRequest, RecipeMetadata, Recipe, ResolvedUrl, TableName} from '../../interfaces';
 import {cleanUndefinedValues} from './helpers';
 
 export async function createParseRequest(resolvedUrl: ResolvedUrl): Promise<void> {
@@ -29,7 +29,7 @@ export async function syncMetadataForRecipe(id: string) {
     url: recipe.url,
     image: recipe.image,
     name: recipe.name,
-    site: url.host,
+    site: url.host.replace(/^www\./, ''),
     timestamp: Date.now(),
-  } as ReciepeMetadata);
+  } as RecipeMetadata);
 }

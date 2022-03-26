@@ -45,7 +45,7 @@ export interface ResolvedUrl {
   url: string;
 }
 
-export interface ReciepeMetadata {
+export interface RecipeMetadata {
   url: string;
   site: string;
   name: string;
