@@ -1,18 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Database, object, objectVal, ref, stateChanges } from '@angular/fire/database';
+import { Database, object, objectVal, ref } from '@angular/fire/database';
 import { Functions, httpsCallableData } from '@angular/fire/functions';
-import { firstValueFrom, map, NEVER, Observable, tap } from 'rxjs';
-import { ParseRequest, Recipe } from '../../../interfaces';
+import { firstValueFrom, map, Observable } from 'rxjs';
+import { ParseRequest, Recipe, ResolvedUrl } from '../../../interfaces';
 
-
-export interface ResolvedUrl { id: string; url: string; }
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-
-
 
   constructor(
     private readonly database: Database,
@@ -32,7 +28,7 @@ export class DataService {
   }
 
 
-  private readonly requestParseCallable = httpsCallableData(this.functions, 'requestParse');
+  private readonly requestParseCallable = httpsCallableData(this.functions, 'supersuper');
   public async requestParse(url: string): Promise<void> {
     await firstValueFrom(this.requestParseCallable({ url }));
     return;

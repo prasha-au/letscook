@@ -33,3 +33,10 @@ export interface ParseRequest {
   status: 'pending' | 'active' | 'done';
   success?: boolean;
 }
+
+
+
+export interface ResolvedUrl {
+  id: string;
+  url: string;
+}

@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 
-
+import { IngredientGroup, InstructionGroup, Recipe } from '../interfaces';
 
 
 async function bootstrap() {
@@ -67,7 +67,8 @@ async function bootstrap() {
 
   const nameNode = await page.$('h2.wprm-recipe-name');
 
-  const reciepe: Reciepe = {
+  const reciepe: Recipe = {
+    url: 'test',
     name: await nameNode?.evaluate(e => e.textContent),
     ingredients,
     instructions,

@@ -1,8 +1,8 @@
-import { AfterContentChecked, AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { firstValueFrom, NEVER, Observable, switchMap } from 'rxjs';
-import { ParseRequest } from '../../../../interfaces';
-import { DataService, ResolvedUrl } from '../data.service';
+import { firstValueFrom, NEVER, Observable } from 'rxjs';
+import { ParseRequest, ResolvedUrl } from '../../../../interfaces';
+import { DataService } from '../data.service';
 
 
 
