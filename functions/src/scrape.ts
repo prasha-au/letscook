@@ -1,7 +1,7 @@
-import {EXTRA_PAGE_HEADERS} from "./helpers";
-import * as puppeteer from "puppeteer";
-import {scrape as wrpmScrape} from "./scrapers/wprm";
-import {Recipe} from "../../interfaces";
+import {EXTRA_PAGE_HEADERS} from './helpers';
+import * as puppeteer from 'puppeteer';
+import {scrape as wrpmScrape} from './scrapers/wprm';
+import {Recipe} from '../../interfaces';
 
 let browser: puppeteer.Browser;
 
@@ -15,10 +15,10 @@ async function tryScape(page: puppeteer.Page, url: string): Promise<Recipe | nul
     try {
       return await scrapeFn(page, url);
     } catch (e) {
-      console.log("Failed scraper");
+      console.log(`Failed scraper ${scrapeFn.name}: ${e}`);
     }
   }
-  console.error("Failed all scrapes.");
+  console.error('Failed all scrapes.');
   return null;
 }
 
@@ -34,7 +34,7 @@ export async function scrapeUrl(url: string): Promise<Recipe> {
 
     const recipe = await tryScape(page, url);
     if (recipe === null) {
-      throw Error("Failed all scrapers.");
+      throw Error('Failed all scrapers.');
     }
     return recipe;
   } finally {
