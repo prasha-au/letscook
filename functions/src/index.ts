@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import {resolveUrl} from './helpers';
 import {scrapeUrl} from './scrape';
-import {ParseRequest} from '../../interfaces';
+import {ParseRequest, TableName} from '../../interfaces';
 import {setRecipe, syncMetadataForRecipe, updateParseRequest} from './database';
 
 admin.initializeApp();
@@ -37,7 +37,7 @@ export const updateMetadata = functions.runWith({memory: '128MB'})
 
 
 export const handleParseRequest = functions.runWith({memory: '512MB'})
-    .database.ref('/parse_requests/{id}')
+    .database.ref(`/${TableName.PARSE_REQUEST}/{id}`)
     .onCreate(async (snapshot, context) => {
       const id = context.params.id as string;
       const request = snapshot.val() as ParseRequest;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Database, limitToLast, object, objectVal, orderByKey, query, ref, set, startAt } from '@angular/fire/database';
+import { Database, limitToFirst, limitToLast, object, objectVal, orderByKey, query, ref, set, startAt } from '@angular/fire/database';
 import { map, Observable } from 'rxjs';
 import { ParseRequest, RecipeMetadata, Recipe, ResolvedUrl, TableName } from '../../../interfaces';
 
@@ -32,7 +32,7 @@ export class DataService {
 
 
   public getRandomRecipes(): Observable<Record<string, RecipeMetadata>> {
-    return objectVal<Record<string, RecipeMetadata>>(query(ref(this.database, TableName.RECIPE_METADATA), limitToLast(10)));
+    return objectVal<Record<string, RecipeMetadata>>(query(ref(this.database, TableName.RECIPE_METADATA), limitToFirst(6)));
   }
 
 

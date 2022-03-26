@@ -8,9 +8,10 @@ import { UserService } from '../user.service';
 @Component({
   selector: 'app-home',
   template: `
-    <div class="text-center d-flex w-100 h-100 p-3 mx-auto flex-column">
-      <div class="container p-6">
-        <img class="mt-2 mb-5" src="assets/logo_white.png" />
+    <div class="text-center d-flex w-100 h-100">
+      <div class="background"></div>
+      <div class="container p-6 p-3">
+        <img class="mt-4 mb-5" src="assets/logo_white.png" />
         <div>
           <p class="lead">Enter a link and get started!</p>
           <p class="lead">
@@ -37,6 +38,9 @@ import { UserService } from '../user.service';
     </div>
   `,
   styles: [
+    '.background { background: url(/assets/background.jpg); background-size:cover; position: fixed; width: 100vw; height: 100vh; z-index:0; }',
+    '.background:after { content: ""; top:0; left: 0; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); }',
+    '.container { z-index: 1; }'
   ]
 })
 export class HomeComponent implements OnInit {

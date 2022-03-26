@@ -21,9 +21,9 @@ import { Recipe } from '../../../../interfaces'
 
 
       <div class="text-center mb-3">
-        <!-- <a>prev</a> -->
-        <h4 class="d-inline-block">{{tabTitles[visibleTab]}}</h4>
-        <!-- <a>next</a> -->
+        <span (click)="setTab('ingredients')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'ingredients'">Ingredients</span>
+        <span (click)="setTab('instructions')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'instructions'">Instructions</span>
+        <span (click)="setTab('notes')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'notes'">Notes</span>
       </div>
 
       <div class="h-100 overflow-auto" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
@@ -40,7 +40,8 @@ import { Recipe } from '../../../../interfaces'
   styles: [
     '.background { z-index: 0; position: fixed; width: 100vw; height: 100vh; filter: blur(8px); background-size: cover; }',
     '.background:after { content: ""; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); }',
-    '.main { z-index: 1; }'
+    '.main { z-index: 1; }',
+    '.tab-text.inactive { opacity: 0.5; }'
   ],
   animations: [
     trigger('animTabs', [
@@ -73,6 +74,14 @@ export class RecipeViewComponent implements OnInit {
   private swipeCoord?: [number, number];
   private swipeTime?: number;
 
+
+  setTab(tab: 'ingredients' | 'instructions' | 'notes') {
+    const currentIndex = this.availableTabs.indexOf(this.visibleTab);
+    const newIndex = this.availableTabs.indexOf(tab);
+
+    this.visibleTab = tab;
+    this.animationState += newIndex > currentIndex ? 1 : -1;
+  }
 
   moveTabs(direction: 'next' | 'previous') {
     const currentIndex = this.availableTabs.indexOf(this.visibleTab);
