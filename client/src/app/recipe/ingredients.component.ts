@@ -15,6 +15,7 @@ import { IngredientGroup } from '../../../../interfaces';
           <label class="form-check-label" [for]="'ingredient-'+groupIdx+'-'+i">
             {{ingredient.amount}} {{ingredient.unit}}
             {{ingredient.name}}
+            <span *ngIf="ingredient.notes" class="text-white-50">{{ingredient.notes}}</span>
           </label>
         </div>
       </div>
