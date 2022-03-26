@@ -4,7 +4,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { right, left } from '../animations';
 import { Recipe } from '../../../../interfaces'
 
-type TabType = 'ingredients' | 'instructions' | 'notes' | 'dual';
+type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
 
 @Component({
   selector: 'app-recipe-view',
@@ -26,7 +26,7 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'dual';
         <span (click)="setTab('ingredients')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'ingredients'">Ingredients</span>
         <span (click)="setTab('instructions')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'instructions'">Instructions</span>
         <span (click)="setTab('notes')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'notes'">Notes</span>
-        <span (click)="setTab('dual')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'dual'">Dual</span>
+        <span (click)="setTab('split')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'split'">Split</span>
       </div>
 
       <div class="h-100 overflow-auto" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
@@ -36,10 +36,11 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'dual';
 
         <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe?.notes"></app-recipe-notes>
 
-        <div *ngIf="visibleTab == 'dual'" class="container-fluid pt-3 h-100">
+        <div *ngIf="visibleTab == 'split'" class="container-fluid pt-3 h-100">
           <div class="row h-100">
-            <app-recipe-ingredients class="col-5 h-100 overflow-auto" [ingredientGroups]="recipe?.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
-            <app-recipe-instructions class="col h-100 overflow-auto" [instructionGroups]="recipe?.instructions"></app-recipe-instructions>
+            <app-recipe-ingredients class="col-lg-5 split-col overflow-auto pb-3" [ingredientGroups]="recipe?.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
+            <div class="container d-lg-none px-4 mb-4"><hr></div>
+            <app-recipe-instructions class="col-lg split-col overflow-auto pb-3" [instructionGroups]="recipe?.instructions"></app-recipe-instructions>
           </div>
         </div>
 
@@ -52,7 +53,8 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'dual';
     '.background-div {  filter: blur(6px); }',
     '.background-div:after { background: rgba(0,0,0,0.7); }',
     '.main { z-index: 1; }',
-    '.tab-text.inactive { opacity: 0.5; }'
+    '.tab-text.inactive { opacity: 0.5; }',
+    '@media screen and ( min-width: 992px ) {  .split-col { height: 100% !important; } } '
   ],
   animations: [
     trigger('animTabs', [
@@ -67,8 +69,8 @@ export class RecipeViewComponent implements OnInit {
 
   public animationState: number = 1;
 
-  private readonly availableTabs: TabType[] = ['ingredients', 'instructions', 'notes', 'dual'];
-  public visibleTab: TabType = 'dual';
+  private readonly availableTabs: TabType[] = ['ingredients', 'instructions', 'notes', 'split'];
+  public visibleTab: TabType = 'split';
 
   public checkedItems: string[] = [];
 

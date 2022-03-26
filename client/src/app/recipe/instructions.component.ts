@@ -8,14 +8,12 @@ import { InstructionGroup } from '../../../../interfaces';
   template: `
 
   <div class="container">
-
     <div *ngFor="let group of instructionGroups; let groupIdx = index;">
       <h5 *ngIf="group.name">{{group.name}}</h5>
-        <ol >
-          <li *ngFor="let step of group.steps;">{{step}}</li>
-        </ol>
+      <ol>
+        <li *ngFor="let step of group.steps;">{{step}}</li>
+      </ol>
     </div>
-
   </div>
 
   `,

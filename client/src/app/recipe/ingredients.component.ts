@@ -26,7 +26,6 @@ import { IngredientGroup } from '../../../../interfaces';
         </div>
       </div>
     </div>
-
   </div>
 
   `,
