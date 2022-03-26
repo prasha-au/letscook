@@ -15,6 +15,7 @@ import { HomeComponent } from './home/home.component';
 import { DataService } from './data.service';
 import { RecipeModule } from './recipe/recipe.module';
 import { LoaderModule } from './loader/loader.module';
+import { JarModule } from './jar/jar.module';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { LoaderModule } from './loader/loader.module';
     provideFunctions(() => getFunctions()),
     RecipeModule,
     LoaderModule,
+    JarModule,
     NgbModule,
     AppRoutingModule
   ],

@@ -9,7 +9,7 @@ import { UserService } from '../user.service';
   selector: 'app-home',
   template: `
     <div class="text-center d-flex w-100 h-100">
-      <div class="background"></div>
+      <div class="background-div"></div>
       <div class="container p-6 p-3">
         <img class="mt-4 mb-5 mw-100 px-3" src="assets/logo_white.png" />
         <div>
@@ -24,22 +24,23 @@ import { UserService } from '../user.service';
 
         <hr class="mt-5">
 
-        <div class="mt-5" *ngIf="randomRecipesObs | async; let randomRecipes">
+        <div class="mt-5 pb-5" *ngIf="randomRecipesObs | async; let randomRecipes">
           <h3>Recent Recipes</h3>
           <div class="list-group">
             <a  *ngFor="let recipe of randomRecipes | keyvalue" [routerLink]="['/recipe', recipe.key]"
               class="list-group-item list-group-item-action bg-transparent text-white">
               {{recipe.value.site}} - {{recipe.value.name}}
             </a>
+            <a [routerLink]="['/jar']" class="list-group-item list-group-item-action bg-transparent text-white">
+              View more
+            </a>
           </div>
-
         </div>
+
       </div>
     </div>
   `,
   styles: [
-    '.background { background: url(/assets/background.jpg); background-size:cover; position: fixed; width: 100vw; height: 100vh; z-index:0; }',
-    '.background:after { content: ""; top:0; left: 0; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); }',
     '.container { z-index: 1; }'
   ]
 })

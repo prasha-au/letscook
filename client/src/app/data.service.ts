@@ -36,6 +36,12 @@ export class DataService {
   }
 
 
+  public getRecipes(): Observable<Record<string, RecipeMetadata>> {
+    return objectVal<Record<string, RecipeMetadata>>(query(ref(this.database, TableName.RECIPE_METADATA), orderByKey()));
+  }
+
+
+
   public resolveUrl(query: string): ResolvedUrl | null {
     let url: URL;
 

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IngredientGroup } from '../../../../interfaces';
 
 
@@ -11,7 +11,13 @@ import { IngredientGroup } from '../../../../interfaces';
       <h5 *ngIf="group.name">{{group.name}}</h5>
       <div *ngFor="let ingredient of group.ingredients; let i = index">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="" [id]="'ingredient-'+groupIdx+'-'+i">
+          <input class="form-check-input"
+            type="checkbox"
+            value=""
+            [id]="'ingredient-'+groupIdx+'-'+i"
+            (change)="onChecked($event.target)"
+            [defaultChecked]="checkedItems.indexOf('ingredient-'+groupIdx+'-'+i) != -1"
+          >
           <label class="form-check-label" [for]="'ingredient-'+groupIdx+'-'+i">
             {{ingredient.amount}} {{ingredient.unit}}
             {{ingredient.name}}
@@ -31,9 +37,29 @@ export class IngredientsComponent implements OnInit {
 
   @Input() ingredientGroups?: IngredientGroup[];
 
-  constructor() { }
 
-  ngOnInit(): void {
+  @Input() checkedItems!: string[];
+  @Output() checkedItemsChange = new EventEmitter<string[]>();
+
+
+  constructor() {}
+
+  ngOnInit(): void {}
+
+
+  onChecked(input: EventTarget | null) {
+    if (!input) {
+      return;
+    }
+    const id = (<HTMLInputElement>input).id;
+    const checked = (<HTMLInputElement>input).checked;
+
+    if (checked) {
+      this.checkedItems = [...this.checkedItems, id];
+    } else {
+      this.checkedItems = this.checkedItems.filter(v => v !== id);
+    }
+    this.checkedItemsChange.emit(this.checkedItems);
   }
 
 }

@@ -1,7 +1,10 @@
+import { Location } from '@angular/common'
 import { trigger, transition } from '@angular/animations';
 import { Component, Input, OnInit } from '@angular/core';
 import { right, left } from '../animations';
 import { Recipe } from '../../../../interfaces'
+
+type TabType = 'ingredients' | 'instructions' | 'notes' | 'dual';
 
 @Component({
   selector: 'app-recipe-view',
@@ -9,37 +12,45 @@ import { Recipe } from '../../../../interfaces'
 
   <div class="d-flex h-100 flex-column">
 
-
-    <div *ngIf="recipe.image" class="background" [style.backgroundImage]="'url('+recipe?.image+')'"></div>
+    <div *ngIf="recipe.image" class="background-div" [style.backgroundImage]="'url('+recipe?.image+')'"></div>
 
     <main class="h-100 d-flex flex-column main">
 
       <div class="w-100 mt-4 mb-3">
-        <a [routerLink]="['/']" type="button" class="btn btn-sm btn-outline-light float-start position-absolute ms-3">Back</a>
+        <button (click)="location.back()" type="button" class="btn btn-sm btn-outline-light float-start position-absolute ms-3">Back</button>
         <h2 class="text-center">{{recipe.name}}</h2>
       </div>
 
 
-      <div class="text-center mb-3">
+      <div class="text-center mb-4">
         <span (click)="setTab('ingredients')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'ingredients'">Ingredients</span>
         <span (click)="setTab('instructions')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'instructions'">Instructions</span>
         <span (click)="setTab('notes')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'notes'">Notes</span>
+        <span (click)="setTab('dual')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'dual'">Dual</span>
       </div>
 
       <div class="h-100 overflow-auto" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
-        <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe?.ingredients"></app-recipe-ingredients>
+        <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe?.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
 
         <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe?.instructions"></app-recipe-instructions>
 
         <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe?.notes"></app-recipe-notes>
+
+        <div *ngIf="visibleTab == 'dual'" class="container-fluid pt-3 h-100">
+          <div class="row h-100">
+            <app-recipe-ingredients class="col-5 h-100 overflow-auto" [ingredientGroups]="recipe?.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
+            <app-recipe-instructions class="col h-100 overflow-auto" [instructionGroups]="recipe?.instructions"></app-recipe-instructions>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
 
   `,
   styles: [
-    '.background { z-index: 0; position: fixed; width: 100vw; height: 100vh; filter: blur(8px); background-size: cover; }',
-    '.background:after { content: ""; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); }',
+    '.background-div {  filter: blur(6px); }',
+    '.background-div:after { background: rgba(0,0,0,0.7); }',
     '.main { z-index: 1; }',
     '.tab-text.inactive { opacity: 0.5; }'
   ],
@@ -56,26 +67,22 @@ export class RecipeViewComponent implements OnInit {
 
   public animationState: number = 1;
 
-  public readonly tabTitles = {
-    ingredients: 'Ingredients',
-    instructions: 'Instructions',
-    notes: 'Notes',
-  } as const;
-  private readonly availableTabs = ['ingredients', 'instructions', 'notes'] as const;
-  public visibleTab: 'ingredients' | 'instructions' | 'notes' = 'ingredients';
+  private readonly availableTabs: TabType[] = ['ingredients', 'instructions', 'notes', 'dual'];
+  public visibleTab: TabType = 'dual';
 
-  constructor() { }
+  public checkedItems: string[] = [];
 
-  ngOnInit(): void {
+  constructor(
+    public location: Location
+  ) { }
 
-  }
-
+  ngOnInit(): void {}
 
   private swipeCoord?: [number, number];
   private swipeTime?: number;
 
 
-  setTab(tab: 'ingredients' | 'instructions' | 'notes') {
+  setTab(tab: TabType) {
     const currentIndex = this.availableTabs.indexOf(this.visibleTab);
     const newIndex = this.availableTabs.indexOf(tab);
 
