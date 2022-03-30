@@ -19,7 +19,7 @@ export function resolveUrl(query: string): ResolvedUrl | null {
     return null;
   }
   return {
-    id: url.hostname.replace(/^www\./, '').replace(/\./g, '_') + url.pathname.replace(/\/$/, '').replace(/\//g, '_'),
+    id: url.hostname.replace(/^www\./, '').replace(/\./g, '_') + url.pathname.replace(/\/$/g, '').replace(/(\.|\/)/g, '_'),
     url: `${url.origin}${url.pathname}`,
   };
 }
