@@ -39,15 +39,14 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
 
   const nameNode = await page.$x('//div[contains(@class, "recipe-title-container")]/h1');
 
-  const imageNode = await page.$x('//*[contains(@class, "lead-image-block")]//img');
-  const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('src'));
-
+  const imageMetaNode = await page.$x('//meta[@itemprop="image"]');
+  const imageSrc = await imageMetaNode?.[0]?.evaluate((e) => (e as HTMLMetaElement).content);
   const cleanedImageSrc = imageSrc ? tryCleanupImageUrl(imageSrc) : undefined;
 
   return {
     url,
     name: await nameNode?.[0]?.evaluate((e) => e.textContent) ?? 'Unknown Name',
-    image: cleanedImageSrc,
+    image: cleanedImageSrc ?? '',
     ingredients: [{ingredients}],
     instructions: [{steps}],
     notes,
