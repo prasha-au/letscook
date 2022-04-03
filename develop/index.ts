@@ -1,9 +1,11 @@
-import puppeteer from 'puppeteer';
+import * as puppeteer from 'puppeteer';
 
 import { IngredientGroup, InstructionGroup, Recipe } from '../interfaces';
 
 
 async function bootstrap() {
+
+  const url = 'https://www.taste.com.au/recipes/classic-baked-vanilla-cheesecake/2c52456a-9a15-4a56-a285-b6e3ef2c6e4d';
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
@@ -15,67 +17,51 @@ async function bootstrap() {
     'accept-language': 'en-US,en;q=0.9,en;q=0.8'
 })
 
-  await page.goto('https://dinnerthendessert.com/mongolian-beef/#wprm-recipe-container-8751', { waitUntil: 'domcontentloaded' });
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
 
-  const ingredientGroupNodes = await page.$x('//div[contains(@class, "wprm-recipe-ingredient-group")]');
-
-  const ingredients: IngredientGroup[] = await Promise.all(ingredientGroupNodes.map(async ingredientGroupNode => {
-    const ingredientNameNode = await ingredientGroupNode.$('.wprm-recipe-group-name');
-    const ingredientNodes = await ingredientGroupNode.$$('.wprm-recipe-ingredient');
-
+  const ingredientNodes = await page.$x('//div[@id="tabIngredients"]//div[@class="ingredient-description"]');
+  const ingredients: IngredientGroup['ingredients'] = await Promise.all(ingredientNodes.map(async node => {
+    const nodeText = await node.evaluate((e) => (e as HTMLElement).dataset?.['rawIngredient']);
+    if (!nodeText) {
+      throw Error(`Unable to parse ingredient.`);
+    }
+    const [ingredient, notes] = nodeText.split(', ');
+    const [amount, ...nameParts] = ingredient.split(' ');
     return {
-      name: ingredientNameNode ? await ingredientNameNode.evaluate(e => e.textContent) : undefined,
-      ingredients: await Promise.all(ingredientNodes.map(async v => {
-        const nameNode = await v.$('.wprm-recipe-ingredient-name');
-        const amountNode = await v.$('.wprm-recipe-ingredient-amount');
-        const unitNode = await v.$('.wprm-recipe-ingredient-unit');
-        const noteNode = await v.$('.wprm-recipe-ingredient-notes');
-        return {
-          name: nameNode ? await nameNode.evaluate(e => e.textContent) : undefined,
-          amount: amountNode ? await amountNode.evaluate(e => e.textContent) : undefined,
-          unit: unitNode ? await unitNode.evaluate(e => e.textContent) : undefined,
-          notes: noteNode ? await noteNode.evaluate(e => e.textContent) : undefined,
-        };
-      }))
+      name: nameParts.join(' ').replace(/^x\s/g, ''),
+      amount,
+      unit: 'each',
+      notes,
     };
   }));
 
-  const instructionGroupNodes = await page.$x('//div[contains(@class, "wprm-recipe-instruction-group")]');
-
-  const instructions: InstructionGroup[] = (await Promise.all(instructionGroupNodes.map(async instructionGroupNode => {
-    const instructionNameNode = await instructionGroupNode.$('.wprm-recipe-group-name');
-    const stepNodes = await instructionGroupNode.$$('.wprm-recipe-instruction-text');
-    return {
-      name: instructionNameNode ? await instructionNameNode.evaluate(e => e.textContent) : undefined,
-      steps: await Promise.all(stepNodes.map(async v => {
-        return  await v.evaluate(e => e.textContent);
-      }))
-    };
-  }))).filter(v => {
-    return v.name || v.steps.length > 0;
-  });
+  const stepNodes = await page.$x('//div[@id="tabMethodSteps"]//div[contains(@class,"recipe-method-step-content")]')
+  const steps: InstructionGroup['steps'] = (await Promise.all(stepNodes.map(async node => {
+    return (await node.evaluate((e) => e.textContent))?.trim();
+  }))).filter((v): v is string => typeof v === 'string');
 
 
+  const noteNodes = await page.$x('//div[contains(@class,"recipe-notes")]//p');
+  const notes = (await Promise.all(noteNodes.map(async (noteNode) => {
+    return (await noteNode.evaluate((e) => e.textContent)) ?? undefined;
+  }))).filter((v): v is string => v !== undefined);
 
 
-  const noteNodes = await page.$x('//div[contains(@class,"wprm-recipe-notes")]/span');
-  const notes = await Promise.all(noteNodes.map(async noteNode => {
-    return noteNode.evaluate(e => e.textContent);
-  }));
+  const nameNode = await page.$x('//div[contains(@class, "recipe-title-container")]/h1');
+
+  const imageNode = await page.$x('//*[contains(@class, "lead-image-block")]//img');
+  const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('src'));
+  // const cleanedImageSrc = imageSrc ? tryCleanupImageUrl(imageSrc) : undefined;
 
 
-
-  const nameNode = await page.$('h2.wprm-recipe-name');
-
-  const reciepe: Recipe = {
-    url: 'test',
-    name: await nameNode?.evaluate(e => e.textContent),
-    ingredients,
-    instructions,
+  console.log(JSON.stringify({
+    url,
+    name: await nameNode?.[0]?.evaluate((e) => e.textContent) ?? 'Unknown Name',
+    image: imageSrc,
+    ingredients: [{ ingredients }],
+    instructions: [{ steps }],
     notes,
-  };
-  console.log(JSON.stringify(reciepe, null, 2));
-
+  }, null, 2));
 
 
 }

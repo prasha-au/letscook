@@ -5,8 +5,13 @@ import {tryCleanupImageUrl} from '../helpers';
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   await page.goto(url, {waitUntil: 'domcontentloaded'});
 
-  const ingredientGroupNodes = await page.$x('//div[contains(@class, "wprm-recipe-ingredient-group")]');
+  const nameNode = await page.$('h2.wprm-recipe-name');
+  const recipeName = await nameNode?.evaluate((e) => e.textContent);
+  if (!recipeName) {
+    throw new Error('Cannot find recipe name.');
+  }
 
+  const ingredientGroupNodes = await page.$x('//div[contains(@class, "wprm-recipe-ingredient-group")]');
   const ingredients = await Promise.all(ingredientGroupNodes.map(async (ingredientGroupNode) => {
     const ingredientNameNode = await ingredientGroupNode.$('.wprm-recipe-group-name');
     const ingredientNodes = await ingredientGroupNode.$$('.wprm-recipe-ingredient');
@@ -49,15 +54,13 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
   }))).filter((v) => v !== undefined);
 
 
-  const nameNode = await page.$('h2.wprm-recipe-name');
-
   const imageNode = await page.$x('//div[contains(@class, "wprm-recipe-image")]//img');
   const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('src'));
   const cleanedImageSrc = imageSrc ? tryCleanupImageUrl(imageSrc) : undefined;
 
   return {
     url,
-    name: await nameNode?.evaluate((e) => e.textContent) ?? 'Unknown Name',
+    name: recipeName,
     image: cleanedImageSrc,
     ingredients,
     instructions,
