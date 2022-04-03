@@ -22,8 +22,8 @@ export const testParse = functions.runWith({memory: '512MB'})
 
 // http://localhost:5001/letscook-423ea/us-central1/testParse?url=https%3A%2F%2Fwww.recipetineats.com%2Fasian-beef-bowls%2F
 // http://localhost:5001/letscook-423ea/us-central1/testParse?url=https%3A%2F%2Fwww.taste.com.au%2Frecipes%2Fnew-york-baked-cheesecake%2F9c2546a2-576c-4879-9036-d99e159bf8a9
-// https://us-central1-letscook-423ea.cloudfunctions.net/testParse?url=https%3A%2F%2Fwww.recipetineats.com%2Fasian-beef-bowls%2F
-
+// https://us-central1-letscook-423ea.cloudfunctions.net/testParse?url=https%3A%2F%2Fwww.taste.com.au%2Frecipes%2Fnew-york-baked-cheesecake%2F9c2546a2-576c-4879-9036-d99e159bf8a9
+// https://www.taste.com.au/recipes/new-york-baked-cheesecake/9c2546a2-576c-4879-9036-d99e159bf8a9
 
 export const updateMetadata = functions.runWith({memory: '128MB'})
     .https.onRequest(async (request, response) => {

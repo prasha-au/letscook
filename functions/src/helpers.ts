@@ -1,5 +1,5 @@
 import {ResolvedUrl} from '../../interfaces';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 
 export const EXTRA_PAGE_HEADERS = {

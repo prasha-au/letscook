@@ -17,6 +17,7 @@
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.18.0",
     "lodash": "^4.17.21",
+    "parse-ingredient": "^0.4.0",
     "puppeteer": "^13.5.1"
   },
   "devDependencies": {

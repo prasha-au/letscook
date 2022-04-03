@@ -1,6 +1,7 @@
 import {Page} from 'puppeteer';
 import {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
 import {tryCleanupImageUrl} from '../helpers';
+import parseIngredient from 'parse-ingredient';
 
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   if (!url.includes('www.taste.com.au')) {
@@ -16,14 +17,21 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
       throw Error('Unable to parse ingredient.');
     }
     const [ingredient, notes] = nodeText.split(', ');
-    const [amount, ...nameParts] = ingredient.split(' ');
+    const parsedValue = parseIngredient(ingredient)[0];
+    if (!parsedValue) {
+      throw Error('Unable to parse ingredient.');
+    }
     return {
-      name: nameParts.join(' ').replace(/^x\s/g, ''),
-      amount,
-      unit: 'each',
+      name: parsedValue.description.replace(/^x /g, ''),
+      amount: parsedValue.quantity?.toString() ?? '1',
+      unit: parsedValue.unitOfMeasure ?? 'each',
       notes,
     };
   }));
+
+
+  const stepTooltips = await page.$$('.annotated-ingredient .tooltip');
+  await Promise.all(stepTooltips.map((node) => node.evaluate((e) => (e as HTMLElement).remove())));
 
   const stepNodes = await page.$x('//div[@id="tabMethodSteps"]//div[contains(@class,"recipe-method-step-content")]');
   const steps: InstructionGroup['steps'] = (await Promise.all(stepNodes.map(async (node) => {
@@ -31,7 +39,7 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
   }))).filter((v): v is string => typeof v === 'string');
 
 
-  const noteNodes = await page.$x('//div[contains(@class,"recipe-notes")]//p');
+  const noteNodes = await page.$x('//section[contains(@class,"recipe-notes")]//p');
   const notes = (await Promise.all(noteNodes.map(async (noteNode) => {
     return (await noteNode.evaluate((e) => e.textContent)) ?? undefined;
   }))).filter((v): v is string => v !== undefined);

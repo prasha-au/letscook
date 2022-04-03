@@ -1,5 +1,5 @@
 import {EXTRA_PAGE_HEADERS} from './helpers';
-import * as puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer';
 import {scrape as wrpmScrape} from './scrapers/wprm';
 import {scrape as tasteScrape} from './scrapers/taste';
 import {Recipe} from '../../interfaces';
