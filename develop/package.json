@@ -1,5 +1,7 @@
 {
   "name": "letscook-development",
+  "license": "ISC",
+  "private": true,
   "scripts": {
     "build": "tsc",
     "test": "ts-node --transpile-only index.ts"
@@ -15,6 +17,5 @@
   },
   "devDependencies": {
     "typescript": "^4.6.3"
-  },
-  "private": true
+  }
 }

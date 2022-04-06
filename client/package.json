@@ -1,6 +1,8 @@
 {
   "name": "client",
   "version": "1.0.0",
+  "license": "ISC",
+  "private": true,
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,7 +10,6 @@
     "watch": "ng build --watch --configuration development",
     "deploy": "firebase deploy --only hosting"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "~13.1.0",
     "@angular/common": "~13.1.0",
