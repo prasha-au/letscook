@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Recipe } from '../../../../interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
-import { map, NEVER, Observable, startWith } from 'rxjs';
+import { first, map, NEVER, Observable, startWith } from 'rxjs';
 
 
 @Component({
@@ -51,11 +51,9 @@ export class RecipeComponent implements OnInit {
     }
     this.recipeObs = this.dataService.getRecipe(recipeId).pipe(
       map(v => v === null ? 'notfound' : v),
+      first(),
       startWith('loading' as const),
     );
   }
-
-// http://localhost:4200/recipe/dinnerthendessert_com_mongolian-beef
-
 
 }
