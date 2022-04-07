@@ -1,6 +1,6 @@
 {
   "name": "letscook-development",
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "build": "tsc",

@@ -1,7 +1,7 @@
 {
   "name": "client",
   "version": "1.0.0",
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "ng": "ng",

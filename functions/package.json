@@ -1,6 +1,6 @@
 {
   "name": "letscook-functions",
-  "license": "ISC",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
