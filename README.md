@@ -13,7 +13,7 @@ I found quite often when cooking that recipe websites...
 
 
 ## Supported sites
-It should be fairly easy to add new websites.
+It should be fairly easy to add new websites. Currently supported sites are...
  - Most sites using [Wordpress Recipe Maker](https://wordpress.org/plugins/wp-recipe-maker/)
  - taste.com.au
 
