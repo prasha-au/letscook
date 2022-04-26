@@ -5,7 +5,7 @@ import {tryCleanupImageUrl} from '../helpers';
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   await page.goto(url, {waitUntil: 'domcontentloaded'});
 
-  const nameNode = await page.$('h2.wprm-recipe-name');
+  const nameNode = await page.$('.wprm-recipe-name');
   const recipeName = await nameNode?.evaluate((e) => e.textContent);
   if (!recipeName) {
     throw new Error('Cannot find recipe name.');
