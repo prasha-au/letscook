@@ -55,7 +55,7 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
 
 
   const imageNode = await page.$x('//div[contains(@class, "wprm-recipe-image")]//img');
-  const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('src'));
+  const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('data-lazy-src') ?? e.getAttribute('src'));
   const cleanedImageSrc = imageSrc ? tryCleanupImageUrl(imageSrc) : undefined;
 
   return {

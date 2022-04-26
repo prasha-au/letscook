@@ -38,7 +38,7 @@ export function cleanUndefinedValues<T>(value: T): T {
 export function tryCleanupImageUrl(rawUrl: string): string {
   try {
     const url = new URL(rawUrl);
-    return `${url.origin}${url.pathname}`;
+    return `${url.origin}${url.pathname}`.replace(/-\d+x\d+(\.\w+)$/g, '$1');
   } catch (e) {
     return rawUrl;
   }
