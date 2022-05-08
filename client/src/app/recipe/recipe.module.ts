@@ -8,7 +8,6 @@ import { RecipeViewComponent } from './reciepe-view.component';
 import { RouterModule } from '@angular/router';
 
 
-
 @NgModule({
   declarations: [
     RecipeComponent,

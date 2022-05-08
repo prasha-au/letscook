@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NEVER, Observable } from 'rxjs';
 import { RecipeMetadata } from '../../../../interfaces';
@@ -13,9 +13,9 @@ import { UserService } from '../user.service';
       <div class="container p-6 p-3">
         <img class="mt-4 mb-5 mw-100 px-3" src="assets/logo_white.png" />
         <div>
-          <p class="lead">Enter a link and get started!</p>
+          <p class="lead">Enter a link or search for a recipe!</p>
           <p class="lead">
-            <input type="text" (input)="changeUrl($event)" class="w-100" />
+            <input type="text" (keyup)="inputChange($event)" class="w-100" />
           </p>
           <p class="lead">
             <button (click)="submitUrl()" class="btn btn-lg btn-secondary border-white bg-white text-black">Let's Cook!</button>
@@ -44,9 +44,9 @@ import { UserService } from '../user.service';
     '.container { z-index: 1; }'
   ]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
 
-  public url: string = '';
+  public urlOrSearch: string = '';
 
   public randomRecipesObs: Observable<Record<string, RecipeMetadata>> = NEVER;
 
@@ -58,17 +58,18 @@ export class HomeComponent implements OnInit {
     this.randomRecipesObs = this.dataService.getRandomRecipes();
   }
 
-  async ngOnInit(): Promise<void> {
-  }
-
-  changeUrl(event: Event) {
-    this.url = (<HTMLInputElement>event?.target).value;
+  inputChange(event: KeyboardEvent) {
+    this.urlOrSearch = (<HTMLInputElement>event.target).value;
+    if (event.code === 'Enter') {
+      this.submitUrl();
+    }
   }
 
   submitUrl() {
-    this.router.navigate(['/load'], { queryParams: { url: this.url }, skipLocationChange: true });
+    if (this.urlOrSearch.startsWith('http')) {
+      this.router.navigate(['/load'], { queryParams: { url: this.urlOrSearch }, skipLocationChange: true });
+    } else {
+      this.router.navigate(['/jar'], { queryParams: { q: this.urlOrSearch } });
+    }
   }
-
-
-
 }

@@ -1,8 +1,7 @@
 import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, FacebookAuthProvider, signInWithPopup, signOut, User } from '@angular/fire/auth';
-import { Database, objectVal, ref } from '@angular/fire/database';
-import { EMPTY, firstValueFrom, Observable, shareReplay, switchMap } from 'rxjs';
-import * as _ from 'lodash';
+import { Database } from '@angular/fire/database';
+import { EMPTY, Observable, shareReplay, switchMap } from 'rxjs';
 
 
 @Injectable({
@@ -34,7 +33,6 @@ export class UserService {
       shareReplay(1),
     )
   }
-
 
   public async login() {
     return await signInWithPopup(this.auth, new FacebookAuthProvider());

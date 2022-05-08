@@ -1,15 +1,15 @@
 import { Location } from '@angular/common'
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { debounceTime, distinctUntilChanged, firstValueFrom, fromEvent, map, NEVER, Observable, tap } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { RecipeMetadata } from '../../../../interfaces';
 import { DataService } from '../data.service';
+import debounce from 'lodash/debounce';
 
 interface RecipeItem extends RecipeMetadata {
   id: string;
   searchValue: string;
 }
-
-
 
 @Component({
   selector: 'app-jar',
@@ -22,7 +22,7 @@ interface RecipeItem extends RecipeMetadata {
       </div>
 
       <div class="w-100 mb-3 container">
-        <input class="w-100 ph-3 text-center" type="text" placeholder="Search..." #searchField />
+        <input class="w-100 ph-3 text-center" type="text" placeholder="Search..." [defaultValue]="searchValue" (keyup)="inputChange($event)" />
       </div>
 
       <div class="list-group h-100 overflow-auto">
@@ -30,6 +30,7 @@ interface RecipeItem extends RecipeMetadata {
           class="list-group-item list-group-item-action bg-transparent text-white">
           {{recipe.site}} - {{recipe.name}}
         </a>
+        <div *ngIf="filteredRecipes.length === 0" class="list-group-item bg-transparent text-white">No matching recipes</div>
       </div>
 
     </div>
@@ -38,43 +39,47 @@ interface RecipeItem extends RecipeMetadata {
     '.container { z-index: 1; }'
   ]
 })
-export class JarComponent implements OnInit, AfterViewInit {
+export class JarComponent implements OnInit {
 
-
-  @ViewChild('searchField') searchField!: ElementRef;
+  public searchValue: string = '';
 
   private allRecipes: RecipeItem[] = []
   public filteredRecipes: RecipeItem[] = [];
 
   constructor(
     private readonly dataService: DataService,
-    public location: Location
+    public location: Location,
+    private activatedRoute: ActivatedRoute,
   ) { }
 
   async ngOnInit(): Promise<void> {
+    this.searchValue = this.activatedRoute.snapshot.queryParams['q'] ?? '';
+
     const recipeResponse = await firstValueFrom(this.dataService.getRecipes());
     this.allRecipes = Object.entries(recipeResponse).map(([id, item]) => {
       return { id, ...item, searchValue: `${item.site} ${item.name}`.toLocaleLowerCase() };
     });
-    this.filteredRecipes = this.allRecipes;
+    this.filterRecipes();
   }
 
-
-  ngAfterViewInit() {
-    fromEvent(this.searchField.nativeElement,'keyup').pipe(
-      debounceTime(150),
-      distinctUntilChanged(),
-      map(() => this.searchField.nativeElement.value),
-    )
-    .subscribe(searchTermRaw => {
-      if (!searchTermRaw) {
-        this.filteredRecipes = this.allRecipes;
-      } else {
-        const searchTerm = searchTermRaw.toLocaleLowerCase();
-        this.filteredRecipes = this.allRecipes.filter(v => v.searchValue.includes(searchTerm));
-      }
-    });
+  inputChange(event: KeyboardEvent) {
+    this.searchValue = (<HTMLInputElement>event.target).value;
+    if (event.code === 'Enter') {
+      this.filterRecipes();
+    } else {
+      this.filterRecipesDebounced();
+    }
   }
 
+  private filterRecipes() {
+    if (!this.searchValue) {
+      this.filteredRecipes = this.allRecipes;
+    } else {
+      const filterTerm = this.searchValue.toLocaleLowerCase();
+      this.filteredRecipes = this.allRecipes.filter(v => v.searchValue.includes(filterTerm));
+    }
+  }
+
+  private filterRecipesDebounced = debounce(this.filterRecipes, 150, { trailing: true });
 
 }
