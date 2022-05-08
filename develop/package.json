@@ -12,6 +12,7 @@
   "main": "dist/index.js",
   "dependencies": {
     "lodash": "^4.17.21",
+    "parse-ingredient": "^0.4.0",
     "puppeteer": "^13.5.2",
     "ts-node": "^10.7.0"
   },

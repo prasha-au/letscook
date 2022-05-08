@@ -1,11 +1,27 @@
-import * as puppeteer from 'puppeteer';
-
+import puppeteer from 'puppeteer';
+import parseIngredient from 'parse-ingredient';
 import { IngredientGroup, InstructionGroup, Recipe } from '../interfaces';
+
+
+type SchemaObject<Type, Properties> = {
+  '@context': 'http://schema.org',
+  '@type': Type,
+} & Properties;
+
+
+
+function getSchemaItemProperties<P extends Record<string, string>>(value: string | P | string[] | P[], property: keyof P): string[] {
+  const arrayValue = Array.isArray(value) ? value : [value];
+  return arrayValue.map(v => {
+    return typeof v === 'string' ? v : v?.[property];
+  }).filter((v: unknown): v is string => typeof v === 'string' && v.length > 0);
+}
 
 
 async function bootstrap() {
 
-  const url = 'https://www.taste.com.au/recipes/classic-baked-vanilla-cheesecake/2c52456a-9a15-4a56-a285-b6e3ef2c6e4d';
+  const url = 'https://snacksandsips.com/homemade-air-fryer-doughnut-holes/';
+  // const url = 'https://www.recipetineats.com/butter-chicken/';
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
@@ -19,48 +35,73 @@ async function bootstrap() {
 
   await page.goto(url, {waitUntil: 'domcontentloaded'});
 
-  const ingredientNodes = await page.$x('//div[@id="tabIngredients"]//div[@class="ingredient-description"]');
-  const ingredients: IngredientGroup['ingredients'] = await Promise.all(ingredientNodes.map(async node => {
-    const nodeText = await node.evaluate((e) => (e as HTMLElement).dataset?.['rawIngredient']);
-    if (!nodeText) {
-      throw Error(`Unable to parse ingredient.`);
+  const ldScripts = await page.$x('//script[@type="application/ld+json"]');
+  const ldScriptContent = await ldScripts[0].evaluate((e) => e.textContent);
+
+  const ldContent = JSON.parse(ldScriptContent ?? '');
+
+
+  const recipeContent = Array.isArray(ldContent['@graph']) ? ldContent['@graph'].find(v => v['@type'] === 'Recipe') : ldContent;
+
+
+  if (recipeContent['@type'] !== 'Recipe') {
+    throw Error('Unable to find recipe schema');
+
+  }
+
+
+  console.log('found schema', recipeContent);
+
+  const ingredients: IngredientGroup['ingredients'] = recipeContent.recipeIngredient.map((v: string) => {
+    const [ingredient, notes] = v.split(', ');
+    const parsedValue = parseIngredient(ingredient)[0];
+    if (!parsedValue) {
+      throw Error('Unable to parse ingredient.');
     }
-    const [ingredient, notes] = nodeText.split(', ');
-    const [amount, ...nameParts] = ingredient.split(' ');
     return {
-      name: nameParts.join(' ').replace(/^x\s/g, ''),
-      amount,
-      unit: 'each',
+      name: parsedValue.description.replace(/^x /g, ''),
+      amount: parsedValue.quantity?.toString() ?? '1',
+      unit: parsedValue.unitOfMeasure ?? 'each',
       notes,
     };
-  }));
-
-  const stepNodes = await page.$x('//div[@id="tabMethodSteps"]//div[contains(@class,"recipe-method-step-content")]')
-  const steps: InstructionGroup['steps'] = (await Promise.all(stepNodes.map(async node => {
-    return (await node.evaluate((e) => e.textContent))?.trim();
-  }))).filter((v): v is string => typeof v === 'string');
+  });
 
 
-  const noteNodes = await page.$x('//div[contains(@class,"recipe-notes")]//p');
-  const notes = (await Promise.all(noteNodes.map(async (noteNode) => {
-    return (await noteNode.evaluate((e) => e.textContent)) ?? undefined;
-  }))).filter((v): v is string => v !== undefined);
+  let steps: string[] = [];
+
+  if (typeof recipeContent.recipeInstructions === 'string') {
+    steps = recipeContent.recipeInstructions.split('\n').filter((v: string) => v.length);
+  } else if (Array.isArray(recipeContent.recipeInstructions)) {
+
+    interface HowToStep {
+      text: string;
+      '@type': 'HowToStep';
+    }
+
+    steps = recipeContent.recipeInstructions.filter((v: { '@type': string }): v is HowToStep => v['@type'] === 'HowToStep').map((v: HowToStep) => v.text)
+  }
 
 
-  const nameNode = await page.$x('//div[contains(@class, "recipe-title-container")]/h1');
 
-  const imageNode = await page.$x('//*[contains(@class, "lead-image-block")]//img');
-  const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('src'));
-  // const cleanedImageSrc = imageSrc ? tryCleanupImageUrl(imageSrc) : undefined;
+  // const noteNodes = await page.$x('//div[contains(@class,"recipe-notes")]//p');
+  // const notes = (await Promise.all(noteNodes.map(async (noteNode) => {
+  //   return (await noteNode.evaluate((e) => e.textContent)) ?? undefined;
+  // }))).filter((v): v is string => v !== undefined);
+
+
+  // const nameNode = await page.$x('//div[contains(@class, "recipe-title-container")]/h1');
+
+  // const imageNode = await page.$x('//*[contains(@class, "lead-image-block")]//img');
+  // const imageSrc = await imageNode?.[0]?.evaluate((e) => e.getAttribute('src'));
+  // // const cleanedImageSrc = imageSrc ? tryCleanupImageUrl(imageSrc) : undefined;
 
 
   console.log(JSON.stringify({
     url,
-    name: await nameNode?.[0]?.evaluate((e) => e.textContent) ?? 'Unknown Name',
-    image: imageSrc,
+    name: recipeContent.name,
+    //image: recipeContent.images[0] ? tryCleanupImageUrl(recipeContent.images[0]) : undefined,
     ingredients: [{ ingredients }],
     instructions: [{ steps }],
-    notes,
   }, null, 2));
 
 

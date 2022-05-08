@@ -5,6 +5,11 @@ import {tryCleanupImageUrl} from '../helpers';
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   await page.goto(url, {waitUntil: 'domcontentloaded'});
 
+  const wprmNode = await page.$('.wprm-recipe');
+  if (!wprmNode) {
+    throw new Error('Not a Wordpress Recipe Maker website.');
+  }
+
   const nameNode = await page.$('.wprm-recipe-name');
   const recipeName = await nameNode?.evaluate((e) => e.textContent);
   if (!recipeName) {
