@@ -12,35 +12,38 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
 
   <div class="d-flex h-100 flex-column">
 
-    <div *ngIf="recipe.image" class="background-div" [style.backgroundImage]="'url('+recipe?.image+')'"></div>
+    <div *ngIf="recipe.image" class="background-div" [style.backgroundImage]="'url('+recipe.image+')'"></div>
 
     <main class="h-100 d-flex flex-column main">
 
       <div class="w-100 mt-4 mb-3">
         <button (click)="location.back()" type="button" class="btn btn-sm btn-outline-light float-start position-absolute ms-3">Back</button>
-        <h2 class="text-center">{{recipe.name}}</h2>
+        <h2 class="text-center">
+          {{recipe.name}}
+          <a [href]="recipe.url" rel="noreferrer noopener" target="_blank" class="text-secondary text-decoration-none">&#9432;</a>
+        </h2>
       </div>
 
 
-      <div class="text-center mb-4">
+      <div class="text-center mb-4 section-links">
         <span (click)="setTab('ingredients')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'ingredients'">Ingredients</span>
         <span (click)="setTab('instructions')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'instructions'">Instructions</span>
-        <span (click)="setTab('notes')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'notes'">Notes</span>
+        <span *ngIf="recipe.notes?.length" (click)="setTab('notes')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'notes'">Notes</span>
         <span (click)="setTab('split')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'split'">Split</span>
       </div>
 
       <div class="h-100 overflow-auto" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
-        <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe?.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
+        <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
 
-        <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe?.instructions"></app-recipe-instructions>
+        <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe.instructions"></app-recipe-instructions>
 
-        <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe?.notes"></app-recipe-notes>
+        <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe.notes"></app-recipe-notes>
 
         <div *ngIf="visibleTab == 'split'" class="container-fluid pt-3 h-100">
           <div class="row h-100">
-            <app-recipe-ingredients class="col-lg-5 split-col overflow-auto pb-3" [ingredientGroups]="recipe?.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
+            <app-recipe-ingredients class="col-lg-5 split-col overflow-auto pb-3" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
             <div class="container d-lg-none px-4 mb-4"><hr></div>
-            <app-recipe-instructions class="col-lg split-col overflow-auto pb-3" [instructionGroups]="recipe?.instructions"></app-recipe-instructions>
+            <app-recipe-instructions class="col-lg split-col overflow-auto pb-3" [instructionGroups]="recipe.instructions"></app-recipe-instructions>
           </div>
         </div>
 
@@ -53,8 +56,9 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
     '.background-div {  filter: blur(6px); }',
     '.background-div:after { background: rgba(0,0,0,0.7); }',
     '.main { z-index: 1; }',
+    '.tab-text { cursor: pointer; }',
     '.tab-text.inactive { opacity: 0.5; }',
-    '@media screen and ( min-width: 992px ) {  .split-col { height: 100% !important; } } '
+    '@media screen and ( min-width: 992px ) { .split-col { height: 100% !important; } } ',
   ],
   animations: [
     trigger('animTabs', [
