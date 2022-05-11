@@ -7,19 +7,19 @@ import {Recipe} from '../../interfaces';
 
 let browser: puppeteer.Browser;
 
-const scrapers = [
+const scrapers = {
   tasteScrape,
   wrpmScrape,
   ldschemaScrape,
-] as const;
+ } as const;
 
 
 async function tryScape(page: puppeteer.Page, url: string): Promise<Recipe | null> {
-  for (const scrapeFn of scrapers) {
+  for (const [scrapeFnName, scrapeFn] of Object.entries(scrapers)) {
     try {
       return await scrapeFn(page, url);
     } catch (e) {
-      console.log(`Failed scraper ${scrapeFn.name}: ${e}`);
+      console.log(`Failed scraper ${scrapeFnName}: ${e}`);
     }
   }
   console.error('Failed all scrapes.');
@@ -45,5 +45,3 @@ export async function scrapeUrl(url: string): Promise<Recipe> {
     page?.close();
   }
 }
-
-
