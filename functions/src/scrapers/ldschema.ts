@@ -52,7 +52,7 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
   if (typeof recipeContent.recipeInstructions === 'string') {
     steps = recipeContent.recipeInstructions.split('\n').filter((v: string) => v.length);
   } else if (Array.isArray(recipeContent.recipeInstructions)) {
-    steps = recipeContent.recipeInstructions.map(v => {
+    steps = recipeContent.recipeInstructions.map((v) => {
       if (typeof v === 'string') {
         return v;
       } else if (v?.['@type'] === 'HowToStep') {

@@ -11,7 +11,7 @@ const scrapers = {
   tasteScrape,
   wrpmScrape,
   ldschemaScrape,
- } as const;
+} as const;
 
 
 async function tryScape(page: puppeteer.Page, url: string): Promise<Recipe | null> {
