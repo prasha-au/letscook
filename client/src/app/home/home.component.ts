@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NEVER, Observable } from 'rxjs';
 import { RecipeMetadata } from '../../../../interfaces';
 import { DataService } from '../data.service';
-import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +14,7 @@ import { UserService } from '../user.service';
         <div>
           <p class="lead">Enter a link or search for a recipe!</p>
           <p class="lead">
-            <input type="text" (keyup)="inputChange($event)" class="w-100" />
+            <input type="text" #searchField (keyup)="onInputKeyUp($event)" class="w-100" />
           </p>
           <p class="lead">
             <button (click)="submitUrl()" class="btn btn-lg btn-secondary border-white bg-white text-black">Let's Cook!</button>
@@ -46,30 +45,29 @@ import { UserService } from '../user.service';
 })
 export class HomeComponent {
 
-  public urlOrSearch: string = '';
+  @ViewChild('searchField') searchField!: ElementRef<HTMLInputElement>;
 
   public randomRecipesObs: Observable<Record<string, RecipeMetadata>> = NEVER;
 
   constructor(
-    public readonly userService: UserService,
-    public readonly dataService: DataService,
+    private readonly dataService: DataService,
     private readonly router: Router
   ) {
     this.randomRecipesObs = this.dataService.getRandomRecipes();
   }
 
-  inputChange(event: KeyboardEvent) {
-    this.urlOrSearch = (<HTMLInputElement>event.target).value;
+  onInputKeyUp(event: KeyboardEvent) {
     if (event.code === 'Enter') {
       this.submitUrl();
     }
   }
 
   submitUrl() {
-    if (this.urlOrSearch.startsWith('http')) {
-      this.router.navigate(['/load'], { queryParams: { url: this.urlOrSearch }, skipLocationChange: true });
+    const urlOrSearch = this.searchField.nativeElement.value;
+    if (urlOrSearch.startsWith('http')) {
+      this.router.navigate(['/load'], { queryParams: { url: urlOrSearch }, skipLocationChange: true });
     } else {
-      this.router.navigate(['/jar'], { queryParams: { q: this.urlOrSearch } });
+      this.router.navigate(['/jar'], { queryParams: { q: urlOrSearch } });
     }
   }
 }
