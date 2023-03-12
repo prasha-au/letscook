@@ -22,17 +22,23 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
   await page.goto(url, {waitUntil: 'domcontentloaded'});
 
   const ldScripts = await page.$x('//script[@type="application/ld+json"]');
-  const ldScriptContent = await ldScripts[0]?.evaluate((e) => e.textContent);
-  if (!ldScriptContent) {
-    throw Error('Could not find ld script content.');
+
+  const ldContents = await Promise.all(ldScripts.map((script) => script.evaluate((e) => e.textContent)));
+  const recipes = ldContents.map((scriptContent) => {
+    try {
+      const ldContent = JSON.parse(scriptContent ?? '');
+      return Array.isArray(ldContent['@graph']) ? ldContent['@graph'].find((v) => v['@type'] === 'Recipe') : ldContent;
+    } catch (e) {
+      console.warn('Invalid script content.');
+      return undefined;
+    }
+  }).filter((recipeContent): recipeContent is RecipeSchema => recipeContent?.['@type'] === 'Recipe');
+
+  if (!recipes.length) {
+    throw Error('Unable to find a recipe');
   }
 
-  const ldContent = JSON.parse(ldScriptContent ?? '');
-  const recipeContent: RecipeSchema = Array.isArray(ldContent['@graph']) ? ldContent['@graph'].find((v) => v['@type'] === 'Recipe') : ldContent;
-  if (recipeContent['@type'] !== 'Recipe') {
-    throw Error('Unable to find recipe schema');
-  }
-
+  const recipeContent = recipes[0];
 
   const ingredients: IngredientGroup['ingredients'] = recipeContent.recipeIngredient.map((v: string) => {
     const [ingredient, notes] = v.split(', ');

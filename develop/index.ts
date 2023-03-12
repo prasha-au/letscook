@@ -20,7 +20,7 @@ function getSchemaItemProperties<P extends Record<string, string>>(value: string
 
 async function bootstrap() {
 
-  const url = 'https://snacksandsips.com/homemade-air-fryer-doughnut-holes/';
+  const url = 'https://www.onceuponachef.com/recipes/caesar-salad-dressing.html';
   // const url = 'https://www.recipetineats.com/butter-chicken/';
 
   const browser = await puppeteer.launch({ headless: true });
@@ -36,19 +36,24 @@ async function bootstrap() {
   await page.goto(url, {waitUntil: 'domcontentloaded'});
 
   const ldScripts = await page.$x('//script[@type="application/ld+json"]');
-  const ldScriptContent = await ldScripts[0].evaluate((e) => e.textContent);
 
-  const ldContent = JSON.parse(ldScriptContent ?? '');
+  const ldContents = await Promise.all(ldScripts.map(script => script.evaluate((e) => e.textContent)));
 
+  const recipes = ldContents.map(scriptContent => {
+    try {
+      const ldContent = JSON.parse(scriptContent ?? '');
+      return Array.isArray(ldContent['@graph']) ? ldContent['@graph'].find(v => v['@type'] === 'Recipe') : ldContent;
+    } catch (e) {
+      console.warn('Invalid script content.');
+      return undefined;
+    }
+  }).filter(recipeContent => recipeContent?.['@type'] === 'Recipe');
 
-  const recipeContent = Array.isArray(ldContent['@graph']) ? ldContent['@graph'].find(v => v['@type'] === 'Recipe') : ldContent;
-
-
-  if (recipeContent['@type'] !== 'Recipe') {
-    throw Error('Unable to find recipe schema');
-
+  if (!recipes.length) {
+    throw Error('Unable to find a recipe');
   }
 
+  const recipeContent = recipes[0];
 
   console.log('found schema', recipeContent);
 
