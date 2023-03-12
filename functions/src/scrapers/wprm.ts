@@ -1,5 +1,5 @@
 import {Page} from 'puppeteer';
-import {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
+import type {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
 import {tryCleanupImageUrl} from '../helpers';
 
 export async function scrape(page: Page, url: string): Promise<Recipe> {

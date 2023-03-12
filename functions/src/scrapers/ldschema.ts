@@ -1,7 +1,6 @@
-import parseIngredient from 'parse-ingredient';
 import {Page} from 'puppeteer';
-import {IngredientGroup, Recipe} from '../../../interfaces';
-import {tryCleanupImageUrl} from '../helpers';
+import type {IngredientGroup, Recipe} from '../../../interfaces';
+import {tryCleanupImageUrl, parseIngredient} from '../helpers';
 
 
 type SchemaObject<Type, Properties> = {

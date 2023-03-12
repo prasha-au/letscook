@@ -1,6 +1,6 @@
 import {ResolvedUrl} from '../../interfaces';
 import _ from 'lodash';
-
+import parseIngredientLib from 'parse-ingredient';
 
 export const EXTRA_PAGE_HEADERS = {
   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36',
@@ -43,3 +43,16 @@ export function tryCleanupImageUrl(rawUrl: string): string {
     return rawUrl;
   }
 }
+
+export function parseIngredient(ingredient: string): ReturnType<typeof parseIngredientLib> {
+  const fracMatch = ingredient.match(/&frac(\d)(\d);/);
+  if (fracMatch) {
+    ingredient = ingredient.replace(fracMatch[0], (parseInt(fracMatch[1]) / parseInt(fracMatch[2])).toFixed(3));
+  }
+  ingredient = ingredient
+      .replace('half', '0.5')
+      .replace('quarter', '0.25')
+      .replace('third', '0.33');
+  return parseIngredientLib(ingredient);
+}
+

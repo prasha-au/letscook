@@ -1,7 +1,6 @@
 import {Page} from 'puppeteer';
-import {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
-import {tryCleanupImageUrl} from '../helpers';
-import parseIngredient from 'parse-ingredient';
+import type {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
+import {tryCleanupImageUrl, parseIngredient} from '../helpers';
 
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   if (!url.includes('www.taste.com.au')) {

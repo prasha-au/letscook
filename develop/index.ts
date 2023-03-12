@@ -18,6 +18,20 @@ function getSchemaItemProperties<P extends Record<string, string>>(value: string
 }
 
 
+function cleanIngredientText(text: string): string {
+
+  const fracMatch = text.match(/&frac(\d)(\d);/);
+  if (fracMatch) {
+    text = text.replace(fracMatch[0], (parseInt(fracMatch[1]) / parseInt(fracMatch[2])).toFixed(3));
+  }
+
+
+  return text
+    .replace('half', '0.5')
+    .replace('quarter', '0.25');
+}
+
+
 async function bootstrap() {
 
   const url = 'https://www.onceuponachef.com/recipes/caesar-salad-dressing.html';
@@ -59,7 +73,8 @@ async function bootstrap() {
 
   const ingredients: IngredientGroup['ingredients'] = recipeContent.recipeIngredient.map((v: string) => {
     const [ingredient, notes] = v.split(', ');
-    const parsedValue = parseIngredient(ingredient)[0];
+    console.log('cleaned', cleanIngredientText(ingredient));
+    const parsedValue = parseIngredient(cleanIngredientText(ingredient))[0];
     if (!parsedValue) {
       throw Error('Unable to parse ingredient.');
     }
