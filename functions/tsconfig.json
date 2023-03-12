@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "target": "es2021",
+    "lib": ["es2021", "dom"],
+    "strict": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
     "sourceMap": true,
-    "strict": true,
-    "target": "es2017",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
