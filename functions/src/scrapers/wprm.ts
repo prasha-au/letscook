@@ -1,6 +1,11 @@
-import {Page} from 'puppeteer';
+import {ElementHandle, Page} from 'puppeteer';
 import type {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
-import {tryCleanupImageUrl} from '../helpers';
+import {parseIngredient, tryCleanupImageUrl} from '../helpers';
+
+async function getTextFromNodeSelector(element: ElementHandle<Element> | Page, selector: string): Promise<string | undefined> {
+  const node = await element.$(selector);
+  return await node?.evaluate((e) => e.textContent) ?? undefined;
+}
 
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   await page.goto(url, {waitUntil: 'domcontentloaded'});
@@ -10,29 +15,31 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
     throw new Error('Not a Wordpress Recipe Maker website.');
   }
 
-  const nameNode = await page.$('.wprm-recipe-name');
-  const recipeName = await nameNode?.evaluate((e) => e.textContent);
+  const recipeName = await getTextFromNodeSelector(page, '.wprm-recipe-name');
   if (!recipeName) {
     throw new Error('Cannot find recipe name.');
   }
 
   const ingredientGroupNodes = await page.$x('//div[contains(@class, "wprm-recipe-ingredient-group")]');
   const ingredients = await Promise.all(ingredientGroupNodes.map(async (ingredientGroupNode) => {
-    const ingredientNameNode = await ingredientGroupNode.$('.wprm-recipe-group-name');
     const ingredientNodes = await ingredientGroupNode.$$('.wprm-recipe-ingredient');
-
     return {
-      name: ingredientNameNode ? await ingredientNameNode.evaluate((e) => e.textContent) : undefined,
+      name: await getTextFromNodeSelector(ingredientGroupNode, '.wprm-recipe-group-name'),
       ingredients: await Promise.all(ingredientNodes.map(async (v) => {
-        const nameNode = await v.$('.wprm-recipe-ingredient-name');
-        const amountNode = await v.$('.wprm-recipe-ingredient-amount');
-        const unitNode = await v.$('.wprm-recipe-ingredient-unit');
-        const noteNode = await v.$('.wprm-recipe-ingredient-notes');
+        const name = await getTextFromNodeSelector(v, '.wprm-recipe-ingredient-name');
+        const amount = await getTextFromNodeSelector(v, '.wprm-recipe-ingredient-amount');
+        const unit = await getTextFromNodeSelector(v, '.wprm-recipe-ingredient-unit');
+        const notes = await getTextFromNodeSelector(v, '.wprm-recipe-ingredient-notes');
+        const ingredientText = `${amount?.split('/').shift() ?? 1} ${unit ?? 'each'} ${name}`;
+        const parsedValue = parseIngredient(ingredientText);
+        if (!parsedValue) {
+          throw Error('Unable to parse ingredient.');
+        }
         return {
-          name: nameNode ? await nameNode.evaluate((e) => e.textContent) : undefined,
-          amount: amountNode ? await amountNode.evaluate((e) => e.textContent) : undefined,
-          unit: unitNode ? await unitNode.evaluate((e) => e.textContent) : undefined,
-          notes: noteNode ? await noteNode.evaluate((e) => e.textContent) : undefined,
+          name,
+          amount: parsedValue.amount,
+          unit: parsedValue.unit,
+          notes,
         };
       })),
     };
@@ -41,10 +48,10 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
   const instructionGroupNodes = await page.$x('//div[contains(@class, "wprm-recipe-instruction-group")]');
 
   const instructions = (await Promise.all(instructionGroupNodes.map(async (instructionGroupNode) => {
-    const instructionNameNode = await instructionGroupNode.$('.wprm-recipe-group-name');
+    const instructionName = await getTextFromNodeSelector(instructionGroupNode, '.wprm-recipe-group-name');
     const stepNodes = await instructionGroupNode.$$('.wprm-recipe-instruction-text');
     return {
-      name: instructionNameNode ? await instructionNameNode.evaluate((e) => e.textContent) : undefined,
+      name: instructionName,
       steps: (await Promise.all(stepNodes.map(async (v) => {
         return await v.evaluate((e) => e.textContent);
       }))).filter((v) => v !== undefined),

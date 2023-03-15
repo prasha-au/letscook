@@ -41,16 +41,11 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
 
   const ingredients: IngredientGroup['ingredients'] = recipeContent.recipeIngredient.map((v: string) => {
     const [ingredient, notes] = v.split(', ');
-    const parsedValue = parseIngredient(ingredient)[0];
+    const parsedValue = parseIngredient(ingredient);
     if (!parsedValue) {
       throw Error('Unable to parse ingredient.');
     }
-    return {
-      name: parsedValue.description.replace(/^x /g, ''),
-      amount: parsedValue.quantity?.toString() ?? '1',
-      unit: parsedValue.unitOfMeasure ?? 'each',
-      notes,
-    };
+    return {...parsedValue, notes};
   });
 
   let steps: string[] = [];

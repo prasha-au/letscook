@@ -1,4 +1,4 @@
-import {ResolvedUrl} from '../../interfaces';
+import type {IngredientGroup, ResolvedUrl} from '../../interfaces';
 import _ from 'lodash';
 import parseIngredientLib from 'parse-ingredient';
 
@@ -44,7 +44,7 @@ export function tryCleanupImageUrl(rawUrl: string): string {
   }
 }
 
-export function parseIngredient(ingredient: string): ReturnType<typeof parseIngredientLib> {
+export function parseIngredient(ingredient: string): Omit<IngredientGroup['ingredients'][number], 'notes'> | undefined {
   const fracMatch = ingredient.match(/&frac(\d)(\d);/);
   if (fracMatch) {
     ingredient = ingredient.replace(fracMatch[0], (parseInt(fracMatch[1]) / parseInt(fracMatch[2])).toFixed(3));
@@ -53,6 +53,14 @@ export function parseIngredient(ingredient: string): ReturnType<typeof parseIngr
       .replace('half', '0.5')
       .replace('quarter', '0.25')
       .replace('third', '0.33');
-  return parseIngredientLib(ingredient);
+  const parsedValue = parseIngredientLib(ingredient)[0];
+  if (parsedValue === undefined) {
+    return undefined;
+  }
+  return {
+    name: parsedValue.description.replace(/^x /g, ''),
+    amount: parsedValue.quantity?.toString() ?? '1',
+    unit: parsedValue.unitOfMeasure ?? 'each',
+  };
 }
 
