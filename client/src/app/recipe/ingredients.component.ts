@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IngredientGroup } from '../../../../interfaces';
-
+import { formatIngredientQuantity } from './helpers';
 
 @Component({
   selector: 'app-recipe-ingredients',
@@ -19,7 +19,7 @@ import { IngredientGroup } from '../../../../interfaces';
             [defaultChecked]="checkedItems.indexOf('ingredient-'+groupIdx+'-'+i) != -1"
           >
           <label class="form-check-label" [for]="'ingredient-'+groupIdx+'-'+i">
-            {{ingredient.amount}} {{ingredient.unit}}
+            {{formatIngredientQuantity(ingredient.amount, ingredient.unit)}}
             {{ingredient.name}}
             <span *ngIf="ingredient.notes" class="text-white-50">{{ingredient.notes}}</span>
           </label>
@@ -35,7 +35,6 @@ import { IngredientGroup } from '../../../../interfaces';
 export class IngredientsComponent implements OnInit {
 
   @Input() ingredientGroups?: IngredientGroup[];
-
 
   @Input() checkedItems!: string[];
   @Output() checkedItemsChange = new EventEmitter<string[]>();
@@ -61,4 +60,5 @@ export class IngredientsComponent implements OnInit {
     this.checkedItemsChange.emit(this.checkedItems);
   }
 
+  public formatIngredientQuantity = formatIngredientQuantity;
 }

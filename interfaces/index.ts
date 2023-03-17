@@ -5,12 +5,11 @@ export enum TableName {
   RECIPE_METADATA = 'recipe_metadata'
 }
 
-
 export interface IngredientGroup {
   name?: string;
   ingredients: {
     name: string;
-    amount: string;
+    amount: number;
     unit: string;
     notes?: string;
   }[];
@@ -21,7 +20,6 @@ export interface InstructionGroup {
   steps: string[];
 }
 
-
 export interface Recipe {
   url: string;
   name: string;
@@ -30,7 +28,6 @@ export interface Recipe {
   instructions: InstructionGroup[];
   notes: string[];
 }
-
 
 export type ParseRequest = {
   url: string;

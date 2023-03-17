@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 import {scrape as wrpmScrape} from './scrapers/wprm';
 import {scrape as tasteScrape} from './scrapers/taste';
 import {scrape as ldschemaScrape} from './scrapers/ldschema';
-import {Recipe} from '../../interfaces';
+import type {Recipe} from '../../interfaces';
 
 let browser: puppeteer.Browser;
 

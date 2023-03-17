@@ -13,6 +13,11 @@ export async function updateParseRequest(id: string, update: Partial<ParseReques
   await admin.database().ref(`${TableName.PARSE_REQUEST}/${id}`).update(update);
 }
 
+export async function getParseRequest(id: string): Promise<ParseRequest> {
+  const snap = await admin.database().ref(`${TableName.PARSE_REQUEST}/${id}`).get();
+  return snap.val();
+}
+
 export async function setRecipe(id: string, recipe: Recipe): Promise<void> {
   await admin.database().ref(`${TableName.RECIPE}/${id}`).set(cleanUndefinedValues(recipe));
 }

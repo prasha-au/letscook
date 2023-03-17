@@ -30,7 +30,7 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
         const amount = await getTextFromNodeSelector(v, '.wprm-recipe-ingredient-amount');
         const unit = await getTextFromNodeSelector(v, '.wprm-recipe-ingredient-unit');
         const notes = await getTextFromNodeSelector(v, '.wprm-recipe-ingredient-notes');
-        const ingredientText = `${amount?.split('/').shift() ?? 1} ${unit ?? 'each'} ${name}`;
+        const ingredientText = `${amount ?? 1} ${unit ?? 'each'} ${name}`;
         const parsedValue = parseIngredient(ingredientText);
         if (!parsedValue) {
           throw Error('Unable to parse ingredient.');

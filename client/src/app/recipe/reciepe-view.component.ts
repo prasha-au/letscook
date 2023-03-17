@@ -67,7 +67,7 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
     ]),
   ],
 })
-export class RecipeViewComponent implements OnInit {
+export class RecipeViewComponent {
 
   @Input() recipe!: Recipe;
 
@@ -78,15 +78,16 @@ export class RecipeViewComponent implements OnInit {
 
   public checkedItems: string[] = [];
 
-  constructor(
-    public location: Location
-  ) { }
+  public showOptions: boolean = false;
 
-  ngOnInit(): void {}
+
 
   private swipeCoord?: [number, number];
   private swipeTime?: number;
 
+  constructor(
+    public location: Location
+  ) {}
 
   setTab(tab: TabType) {
     const currentIndex = this.availableTabs.indexOf(this.visibleTab);

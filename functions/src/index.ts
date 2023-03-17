@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import {resolveUrl} from './helpers';
 import {scrapeUrl} from './scrape';
 import {ParseRequest, TableName} from '../../interfaces';
-import {setRecipe, syncMetadataForRecipe, updateParseRequest} from './database';
+import {getParseRequest, setRecipe, syncMetadataForRecipe, updateParseRequest} from './database';
 
 admin.initializeApp();
 
@@ -20,11 +20,34 @@ export const testParse = functions.runWith({memory: '512MB'})
       response.send(JSON.stringify(result));
     });
 
-// http://localhost:5001/letscook-423ea/us-central1/testParse?url=https%3A%2F%2Fwww.recipetineats.com%2Fasian-beef-bowls%2F
-// http://localhost:5001/letscook-423ea/us-central1/testParse?url=https%3A%2F%2Fwww.taste.com.au%2Frecipes%2Fnew-york-baked-cheesecake%2F9c2546a2-576c-4879-9036-d99e159bf8a9
-// https://us-central1-letscook-423ea.cloudfunctions.net/testParse?url=https%3A%2F%2Fwww.taste.com.au%2Frecipes%2Fnew-york-baked-cheesecake%2F9c2546a2-576c-4879-9036-d99e159bf8a9
-// https://www.taste.com.au/recipes/new-york-baked-cheesecake/9c2546a2-576c-4879-9036-d99e159bf8a9
-// http://localhost:5001/letscook-423ea/us-central1/testParse?url=https%3A%2F%2Fcafedelites.com%2Fportuguese-bbq-peri-peri-chicken-homemade-nandos-recipe%2F
+
+export const attemptReparse = functions.runWith({memory: '512MB'})
+    .https.onRequest(async (request, response) => {
+      const id = request.query.id as string;
+      const parseRequest = await getParseRequest(id).catch(() => undefined);
+      if (parseRequest?.status !== 'done') {
+        response.status(404).send('Recipe must be in a done status to reparse.');
+        return;
+      }
+
+      const resolvedUrl = resolveUrl(parseRequest.url);
+      if (!resolvedUrl) {
+        response.status(500).send('Unable to resolve URL.');
+        return;
+      }
+
+      try {
+        const recipe = await scrapeUrl(resolvedUrl.url);
+        await setRecipe(id, recipe);
+        await syncMetadataForRecipe(id);
+        await updateParseRequest(id, {status: 'done', success: true});
+
+        response.send(JSON.stringify(recipe));
+      } catch (e) {
+        functions.logger.error(`Failed to reparse "${id}": ${e}`);
+        response.status(500).send('Failed to reparse recipe.');
+      }
+    });
 
 
 export const updateMetadata = functions.runWith({memory: '128MB'})
@@ -73,5 +96,3 @@ export const handleParseRequest = functions.runWith({memory: '512MB'})
         await updateParseRequest(id, {status: 'done', success: false, error: 'Failed to parse website.'});
       }
     });
-
-
