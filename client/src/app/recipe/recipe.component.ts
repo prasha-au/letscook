@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Recipe } from '../../../../interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../data.service';
-import { first, map, NEVER, Observable, startWith } from 'rxjs';
+import { first, map, NEVER, Observable, startWith, tap } from 'rxjs';
 
 
 @Component({
@@ -52,6 +52,9 @@ export class RecipeComponent implements OnInit {
     this.recipeObs = this.dataService.getRecipe(recipeId).pipe(
       map(v => v === null ? 'notfound' : v),
       first(),
+      tap(() => {
+        this.dataService.addToRecentRecipes(recipeId);
+      }),
       startWith('loading' as const),
     );
   }

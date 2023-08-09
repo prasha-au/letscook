@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { NEVER, Observable } from 'rxjs';
+import { NEVER, Observable, map } from 'rxjs';
 import { RecipeMetadata } from '../../../../interfaces';
 import { DataService } from '../data.service';
 
@@ -23,16 +23,21 @@ import { DataService } from '../data.service';
 
         <hr class="mt-5">
 
-        <div class="mt-5 pb-5" *ngIf="randomRecipesObs | async; let randomRecipes">
-          <h3>Recent Recipes</h3>
-          <div class="list-group">
-            <a  *ngFor="let recipe of randomRecipes | keyvalue" [routerLink]="['/recipe', recipe.key]"
-              class="list-group-item list-group-item-action bg-transparent text-white">
-              {{recipe.value.site}} - {{recipe.value.name}}
-            </a>
-            <a [routerLink]="['/jar']" class="list-group-item list-group-item-action bg-transparent text-white">
-              View more
-            </a>
+        <div class="mt-5 pb-5" *ngIf="recentRecipesObs | async; let recentRecipes">
+          <div *ngIf="recentRecipes.length > 0">
+            <h3>Recent Recipes</h3>
+            <div class="list-group">
+              <a  *ngFor="let recipe of recentRecipes" [routerLink]="['/recipe', recipe.id]"
+                class="list-group-item list-group-item-action bg-transparent text-white">
+                {{recipe.site}} - {{recipe.name}}
+              </a>
+              <a [routerLink]="['/jar']" class="list-group-item list-group-item-action bg-transparent text-white">
+                View more
+              </a>
+            </div>
+          </div>
+          <div *ngIf="recentRecipes.length == 0">
+            <button [routerLink]="['/jar']" class="btn btn-lg btn-secondary border-white bg-white text-black">Explore recipes!</button>
           </div>
         </div>
 
@@ -47,13 +52,15 @@ export class HomeComponent {
 
   @ViewChild('searchField') searchField!: ElementRef<HTMLInputElement>;
 
-  public randomRecipesObs: Observable<Record<string, RecipeMetadata>> = NEVER;
+  public recentRecipesObs: Observable<(RecipeMetadata & {id: string })[]> = NEVER;
 
   constructor(
-    private readonly dataService: DataService,
+    public readonly dataService: DataService,
     private readonly router: Router
   ) {
-    this.randomRecipesObs = this.dataService.getRandomRecipes();
+    this.recentRecipesObs = this.dataService.getRecentRecipes().pipe(
+      map(values => Object.assign(values.map(v => ({ ...v, id: dataService.resolveUrl(v.url)?.id }))))
+    );
   }
 
   onInputKeyUp(event: KeyboardEvent) {

@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { RecipeMetadata } from '../../../../interfaces';
 import { DataService } from '../data.service';
-import debounce from 'lodash/debounce';
 
 interface RecipeItem extends RecipeMetadata {
   id: string;
@@ -30,7 +29,7 @@ interface RecipeItem extends RecipeMetadata {
           class="list-group-item list-group-item-action bg-transparent text-white">
           {{recipe.site}} - {{recipe.name}}
         </a>
-        <div *ngIf="filteredRecipes.length === 0" class="list-group-item bg-transparent text-white">No matching recipes</div>
+        <div *ngIf="filteredRecipes?.length === 0" class="list-group-item bg-transparent text-white">No matching recipes</div>
       </div>
 
     </div>
@@ -44,7 +43,8 @@ export class JarComponent implements OnInit {
   public searchValue: string = '';
 
   private allRecipes: RecipeItem[] = []
-  public filteredRecipes: RecipeItem[] = [];
+  public filteredRecipes?: RecipeItem[];
+  private filterTimeout: number | undefined;
 
   constructor(
     private readonly dataService: DataService,
@@ -63,11 +63,12 @@ export class JarComponent implements OnInit {
   }
 
   inputChange(event: KeyboardEvent) {
+    clearTimeout(this.filterTimeout);
     this.searchValue = (<HTMLInputElement>event.target).value;
     if (event.code === 'Enter') {
       this.filterRecipes();
     } else {
-      this.filterRecipesDebounced();
+      this.filterTimeout = setTimeout(() => this.filterRecipes(), 150);
     }
   }
 
@@ -79,7 +80,4 @@ export class JarComponent implements OnInit {
       this.filteredRecipes = this.allRecipes.filter(v => v.searchValue.includes(filterTerm));
     }
   }
-
-  private filterRecipesDebounced = debounce(this.filterRecipes, 150, { trailing: true });
-
 }

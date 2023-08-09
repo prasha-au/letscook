@@ -1,6 +1,5 @@
 import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, FacebookAuthProvider, signInWithPopup, signOut, User } from '@angular/fire/auth';
-import { Database } from '@angular/fire/database';
 import { EMPTY, Observable, shareReplay, switchMap } from 'rxjs';
 
 
@@ -17,10 +16,7 @@ export class UserService {
   } | null>;
 
 
-  constructor(
-    @Optional() private auth: Auth,
-    private database: Database
-  ) {
+  constructor(@Optional() private auth: Auth) {
     this.authUser = authState(this.auth);
 
     this.user = this.authUser.pipe(

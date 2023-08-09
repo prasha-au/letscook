@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Database, limitToLast, object, objectVal, orderByChild, orderByKey, query, ref, set } from '@angular/fire/database';
-import { map, Observable } from 'rxjs';
+import { Database, object, objectVal, orderByKey, query, ref, set } from '@angular/fire/database';
+import { combineLatest, map, Observable, of, startWith } from 'rxjs';
 import { ParseRequest, RecipeMetadata, Recipe, ResolvedUrl, TableName } from '../../../interfaces';
 
 
@@ -11,7 +11,7 @@ export class DataService {
 
   constructor(
     private readonly database: Database
-  ) { }
+  ) {}
 
 
   public getRecipe(id: string): Observable<Recipe> {
@@ -31,15 +31,14 @@ export class DataService {
   }
 
 
-  public getRandomRecipes(): Observable<Record<string, RecipeMetadata>> {
-    return objectVal<Record<string, RecipeMetadata>>(query(ref(this.database, TableName.RECIPE_METADATA), orderByChild('timestamp'), limitToLast(6)));
-  }
-
-
   public getRecipes(): Observable<Record<string, RecipeMetadata>> {
     return objectVal<Record<string, RecipeMetadata>>(query(ref(this.database, TableName.RECIPE_METADATA), orderByKey()));
   }
 
+
+  public getRecipeMetadata(id: string): Observable<RecipeMetadata> {
+    return objectVal(ref(this.database, `${TableName.RECIPE_METADATA}/${id}`));
+  }
 
 
   public resolveUrl(query: string): ResolvedUrl | null {
@@ -57,5 +56,34 @@ export class DataService {
     };
   }
 
+
+  public addToRecentRecipes(id: string) {
+    const recent = [
+      ...new Set([ id, ...(this.getRecentRecipeIds() ?? [])])
+    ].slice(0, 10);
+    try {
+      localStorage.setItem('recentRecipes', JSON.stringify(recent));
+    } catch (e) {
+      console.warn('Failed to save recent recipe list: ', e);
+    }
+  }
+
+  public getRecentRecipes(): Observable<RecipeMetadata[]> {
+    const recipeIds = this.getRecentRecipeIds();
+    return recipeIds.length === 0 ? of([]) : combineLatest(
+      recipeIds.map(id => this.getRecipeMetadata(id), startWith(null))
+    ).pipe(
+      map((values) => values.filter(v => v !== null))
+    );
+  }
+
+  private getRecentRecipeIds(): string[] {
+    try {
+      return JSON.parse(localStorage.getItem('recentRecipes') ?? '[]');
+    } catch (e) {
+      console.warn('Failed to get recent recipe list: ', e);
+      return [];
+    }
+  }
 
 }
