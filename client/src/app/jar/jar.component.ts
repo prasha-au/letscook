@@ -1,6 +1,6 @@
 import { Location } from '@angular/common'
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { RecipeMetadata } from '../../../../interfaces';
 import { DataService } from '../data.service';
@@ -49,12 +49,12 @@ export class JarComponent implements OnInit {
   constructor(
     private readonly dataService: DataService,
     public location: Location,
+    private router: Router,
     private activatedRoute: ActivatedRoute,
   ) { }
 
   async ngOnInit(): Promise<void> {
     this.searchValue = this.activatedRoute.snapshot.queryParams['q'] ?? '';
-
     const recipeResponse = await firstValueFrom(this.dataService.getRecipes());
     this.allRecipes = Object.entries(recipeResponse).map(([id, item]) => {
       return { id, ...item, searchValue: `${item.site} ${item.name}`.toLocaleLowerCase() };
@@ -79,5 +79,10 @@ export class JarComponent implements OnInit {
       const filterTerm = this.searchValue.toLocaleLowerCase();
       this.filteredRecipes = this.allRecipes.filter(v => v.searchValue.includes(filterTerm));
     }
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { q: this.searchValue },
+      replaceUrl: true
+    });
   }
 }
