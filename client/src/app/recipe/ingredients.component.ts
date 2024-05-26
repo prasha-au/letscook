@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IngredientGroup } from '../../../../interfaces';
 import { formatIngredientQuantity } from './helpers';
 
@@ -15,40 +15,41 @@ import { formatIngredientQuantity } from './helpers';
             type="checkbox"
             value=""
             [id]="'ingredient-'+groupIdx+'-'+i"
-            (change)="onChecked($event.target)"
+            (change)="onChecked($event.target!)"
             [defaultChecked]="checkedItems.indexOf('ingredient-'+groupIdx+'-'+i) != -1"
           >
           <label class="form-check-label" [for]="'ingredient-'+groupIdx+'-'+i">
-            {{formatIngredientQuantity(ingredient.amount, ingredient.unit)}}
+            {{formatIngredientQuantity(ingredient.amount * scale, ingredient.unit)}}
             {{ingredient.name}}
             <span *ngIf="ingredient.notes" class="text-white-50">{{ingredient.notes}}</span>
           </label>
         </div>
       </div>
     </div>
+
+    <div class="row mt-4">
+      <div class="col-10">
+        <input type="range" class="form-range" min="0" max="6" step="1" value="2" (change)="onScale($event.target!)">
+      </div>
+      <div class="col-2">{{scale}}x</div>
+    </div>
+
   </div>
 
   `,
   styles: [
   ]
 })
-export class IngredientsComponent implements OnInit {
+export class IngredientsComponent {
 
   @Input() ingredientGroups?: IngredientGroup[];
 
   @Input() checkedItems!: string[];
   @Output() checkedItemsChange = new EventEmitter<string[]>();
 
+  public scale: number = 1;
 
-  constructor() {}
-
-  ngOnInit(): void {}
-
-
-  onChecked(input: EventTarget | null) {
-    if (!input) {
-      return;
-    }
+  onChecked(input: EventTarget) {
     const id = (<HTMLInputElement>input).id;
     const checked = (<HTMLInputElement>input).checked;
 
@@ -61,4 +62,10 @@ export class IngredientsComponent implements OnInit {
   }
 
   public formatIngredientQuantity = formatIngredientQuantity;
+
+  onScale(input: EventTarget) {
+    const SCALE_VALUES = [0.25, 0.5, 1, 1.5, 2, 3, 4];
+    const scaleIndex = parseInt((<HTMLInputElement>input).value, 10);
+    this.scale = SCALE_VALUES[scaleIndex % SCALE_VALUES.length];
+  }
 }

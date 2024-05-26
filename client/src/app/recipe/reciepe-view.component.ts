@@ -106,7 +106,7 @@ export class RecipeViewComponent {
 
 
   swipe(e: Event | TouchEvent, when: string): void {
-    if (!('changedTouches' in e)) {
+    if (!('changedTouches' in e) || (e.target as HTMLElement)?.nodeName === 'INPUT') {
       return;
     }
     const coord: [number, number] = [e.changedTouches[0].clientX, e.changedTouches[0].clientY];

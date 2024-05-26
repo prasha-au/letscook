@@ -1,19 +1,22 @@
 
 
 function tryConvertToFraction(amount: number) {
-  switch (amount.toString().slice(0, 5)) {
-    case '0.5':
-      return '1/2';
-    case '0.333':
-      return '1/3';
-    case '0.666':
-      return '2/3';
-    case '0.25':
-      return '1/4';
-    case '0.125':
-      return '1/8';
+  const rangeMap = {
+    '1/8': [0.12, 0.13],
+    '1/5': [0.18, 0.21],
+    '2/5': [0.37, 0.41],
+    '1/4': [0.24, 0.26],
+    '1/3': [0.30, 0.35],
+    '1/2': [0.45, 0.55],
+    '2/3': [0.65, 0.68],
+    '3/4': [0.70, 0.80],
   };
-  return amount;
+  for (const [text, range] of Object.entries(rangeMap)) {
+    if (amount >= range[0] && amount <= range[1]) {
+      return text;
+    }
+  }
+  return Math.round(amount * 10) / 10;
 }
 
 function abbreviateUnit(unit: string, plural: boolean) {
