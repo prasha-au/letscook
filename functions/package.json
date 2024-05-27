@@ -8,16 +8,15 @@
     "build": "tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
-    "start": "npm run shell",
     "deploy": "firebase deploy --only functions"
   },
   "engines": {
-    "node": "16"
+    "node": "20"
   },
   "main": "lib/functions/src/index.js",
   "dependencies": {
-    "firebase-admin": "^10.0.2",
-    "firebase-functions": "^3.18.0",
+    "firebase-admin": "^12.1.1",
+    "firebase-functions": "^5.0.1",
     "lodash": "^4.17.21",
     "parse-ingredient": "^0.6.0",
     "puppeteer": "^13.5.1"
