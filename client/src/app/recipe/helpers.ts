@@ -51,4 +51,3 @@ export function formatIngredientQuantity(amount: number, unit: string): string {
   }
   return `${amountText} ${unit ? abbreviateUnit(unit, amount > 1) : ''}`.trim();
 }
-

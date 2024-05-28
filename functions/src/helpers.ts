@@ -1,4 +1,4 @@
-import type {IngredientGroup, ResolvedUrl} from '../../interfaces';
+import type {IngredientGroup, InstructionStep, ResolvedUrl} from '../../interfaces';
 import _ from 'lodash';
 import {parseIngredient as parseIngredientLib, unitsOfMeasure} from 'parse-ingredient';
 
@@ -93,3 +93,54 @@ export function parseIngredient(ingredient: string): Omit<IngredientGroup['ingre
   };
 }
 
+
+function parseDurationValue(valueStr: string) {
+  if (valueStr.includes('/')) {
+    const match = valueStr.match(/(?:(\d+)\s+)?(\d+)\/(\d+)/m);
+    if (!match) {
+      return undefined;
+    }
+    const [, whole, numerator, denominator] = match;
+    return parseInt(whole ?? '0') + (parseInt(numerator) / parseInt(denominator));
+  } else if (valueStr.includes('.')) {
+    return parseFloat(valueStr);
+  } else {
+    const value = parseInt(valueStr);
+    return isNaN(value) ? undefined : value;
+  }
+}
+
+function parseUnit(valueStr: string) {
+  const unit = valueStr.match(/(seconds?|secs?|minutes?|mins?|hours?|hrs?)/gm)?.[0].toLowerCase().replace(/s$/, '');
+  switch (unit) {
+    case 'second':
+    case 'sec':
+      return 1000;
+    case 'minute':
+    case 'min':
+      return 60 * 1000;
+    case 'hour':
+    case 'hr':
+      return 60 * 60 * 1000;
+    default:
+      return undefined;
+  }
+}
+
+export function parseInstructionStep(text: string): InstructionStep {
+  const matches = text.matchAll(/(((?:\d+\.\d)|(?:\d+\s+\d+\/\d+)|(?:\d+\/\d+)|\d+)\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?)\s?)+/gm);
+  const timers = Array.from(matches).map(match => {
+    const values = match[0] !== match[1]
+      ? Array.from(match[0].matchAll(/((\d+)\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?)+)/gm)).map(v => v[0])
+      : [match[0]];
+
+    const finalValue = values.reduce((acc, curr) => {
+      const durationValue = parseDurationValue(curr);
+      const modifier = parseUnit(curr);
+      return acc + (durationValue ?? 0) * (modifier ?? 0);
+    }, 0);
+
+    return finalValue === 0 ? undefined : { text: match[0].trim(), duration: Math.round(finalValue) };
+  }).filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
+  return { text, timers };
+}

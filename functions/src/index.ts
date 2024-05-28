@@ -5,7 +5,9 @@ import {scrapeUrl} from './scrape';
 import {ParseRequest, TableName} from '../../interfaces';
 import {getParseRequest, setRecipe, syncMetadataForRecipe, updateParseRequest} from './database';
 
-admin.initializeApp();
+admin.initializeApp({
+  databaseURL: 'https://letscook-423ea.asia-southeast1.firebasedatabase.app/'
+});
 
 
 export const testParse = functions.runWith({memory: '512MB'})
@@ -96,3 +98,4 @@ export const handleParseRequest = functions.runWith({memory: '512MB'})
         await updateParseRequest(id, {status: 'done', success: false, error: 'Failed to parse website.'});
       }
     });
+

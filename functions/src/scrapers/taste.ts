@@ -1,6 +1,6 @@
 import {Page} from 'puppeteer';
-import type {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
-import {tryCleanupImageUrl, parseIngredient} from '../helpers';
+import type {IngredientGroup, InstructionGroup, InstructionStep, Recipe} from '../../../interfaces';
+import {tryCleanupImageUrl, parseIngredient, parseInstructionStep} from '../helpers';
 
 export async function scrape(page: Page, url: string): Promise<Recipe> {
   if (!url.includes('www.taste.com.au')) {
@@ -29,8 +29,9 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
 
   const stepNodes = await page.$x('//div[@id="tabMethodSteps"]//div[contains(@class,"recipe-method-step-content")]');
   const steps: InstructionGroup['steps'] = (await Promise.all(stepNodes.map(async (node) => {
-    return (await node.evaluate((e) => e.textContent))?.trim();
-  }))).filter((v): v is string => typeof v === 'string');
+    const stepText = (await node.evaluate((e) => e.textContent))?.trim();
+    return stepText ? parseInstructionStep(stepText) : undefined;
+  }))).filter((v): v is InstructionStep => v !== undefined);
 
 
   const noteNodes = await page.$x('//section[contains(@class,"recipe-notes")]//p');

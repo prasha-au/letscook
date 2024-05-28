@@ -15,9 +15,14 @@ export interface IngredientGroup {
   }[];
 }
 
+export interface InstructionStep {
+  text: string;
+  timers: { text: string; duration: number }[];
+}
+
 export interface InstructionGroup {
   name?: string;
-  steps: string[];
+  steps: InstructionStep[];
 }
 
 export interface Recipe {

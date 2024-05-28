@@ -6,6 +6,7 @@ import { InstructionsComponent } from './instructions.component';
 import { NotesComponent } from './notes.component';
 import { RecipeViewComponent } from './reciepe-view.component';
 import { RouterModule } from '@angular/router';
+import { TimerComponent } from './timer.component';
 
 
 @NgModule({
@@ -15,10 +16,11 @@ import { RouterModule } from '@angular/router';
     IngredientsComponent,
     InstructionsComponent,
     NotesComponent,
+    TimerComponent,
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
   ]
 })
 export class RecipeModule { }

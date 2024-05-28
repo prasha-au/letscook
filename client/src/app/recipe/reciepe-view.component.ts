@@ -1,8 +1,9 @@
 import { Location } from '@angular/common'
 import { trigger, transition } from '@angular/animations';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { right, left } from '../animations';
-import { Recipe } from '../../../../interfaces'
+import { Recipe } from '../../../../interfaces';
+import type { TimerRequest } from './timer.component';
 
 type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
 
@@ -16,14 +17,18 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
 
     <main class="h-100 d-flex flex-column main">
 
-      <div class="w-100 mt-4 mb-3">
-        <button (click)="location.back()" type="button" class="btn btn-sm btn-outline-light float-start position-absolute ms-3">Back</button>
-        <h2 class="text-center">
+      <div class="w-100 mt-4 mb-3 px-3 d-flex">
+        <div>
+          <button (click)="location.back()" type="button" class="btn btn-sm btn-outline-light">Back</button>
+        </div>
+        <h2 class="text-center flex-fill">
           {{recipe.name}}
           <a [href]="recipe.url" rel="noreferrer noopener" target="_blank" class="text-secondary text-decoration-none">&#9432;</a>
         </h2>
+        <div>
+          <app-timer [request]="timerRequest" (cancel)="timerRequest = undefined"></app-timer>
+        </div>
       </div>
-
 
       <div class="text-center mb-4 section-links">
         <span (click)="setTab('ingredients')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'ingredients'">Ingredients</span>
@@ -35,7 +40,7 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
       <div class="h-100 overflow-auto" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
         <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
 
-        <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe.instructions"></app-recipe-instructions>
+        <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe.instructions" (addTimer)="timerRequest = $event"></app-recipe-instructions>
 
         <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe.notes"></app-recipe-notes>
 
@@ -43,7 +48,7 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
           <div class="row h-100">
             <app-recipe-ingredients class="col-lg-5 split-col overflow-auto pb-3" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
             <div class="container d-lg-none px-4 mb-4"><hr></div>
-            <app-recipe-instructions class="col-lg split-col overflow-auto pb-3" [instructionGroups]="recipe.instructions"></app-recipe-instructions>
+            <app-recipe-instructions class="col-lg split-col overflow-auto pb-3" [instructionGroups]="recipe.instructions" (addTimer)="timerRequest = $event"></app-recipe-instructions>
           </div>
         </div>
 
@@ -80,13 +85,13 @@ export class RecipeViewComponent {
 
   public showOptions: boolean = false;
 
-
+  public timerRequest?: TimerRequest = undefined;
 
   private swipeCoord?: [number, number];
   private swipeTime?: number;
 
   constructor(
-    public location: Location
+    public location: Location,
   ) {}
 
   setTab(tab: TabType) {
@@ -103,7 +108,6 @@ export class RecipeViewComponent {
     this.visibleTab = this.availableTabs[newIndex < 0 ? this.availableTabs.length - 1 : newIndex];
     this.animationState += direction === 'next' ? 1 : -1;
   }
-
 
   swipe(e: Event | TouchEvent, when: string): void {
     if (!('changedTouches' in e) || (e.target as HTMLElement)?.nodeName === 'INPUT') {

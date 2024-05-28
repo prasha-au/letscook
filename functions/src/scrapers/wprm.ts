@@ -1,6 +1,6 @@
 import {ElementHandle, Page} from 'puppeteer';
 import type {IngredientGroup, InstructionGroup, Recipe} from '../../../interfaces';
-import {parseIngredient, tryCleanupImageUrl} from '../helpers';
+import {parseIngredient, parseInstructionStep, tryCleanupImageUrl} from '../helpers';
 
 async function getTextFromNodeSelector(element: ElementHandle<Element> | Page, selector: string): Promise<string | undefined> {
   const node = await element.$(selector);
@@ -53,7 +53,8 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
     return {
       name: instructionName,
       steps: (await Promise.all(stepNodes.map(async (v) => {
-        return await v.evaluate((e) => e.textContent);
+        const stepText = await v.evaluate((e) => e.textContent);
+        return stepText ? parseInstructionStep(stepText) : undefined;
       }))).filter((v) => v !== undefined),
     };
   }))).filter((v) => {

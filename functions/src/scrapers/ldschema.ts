@@ -1,6 +1,6 @@
 import {Page} from 'puppeteer';
 import type {IngredientGroup, Recipe} from '../../../interfaces';
-import {tryCleanupImageUrl, parseIngredient} from '../helpers';
+import {tryCleanupImageUrl, parseIngredient, parseInstructionStep} from '../helpers';
 
 
 type SchemaObject<Type, Properties> = {
@@ -66,7 +66,9 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
     name: recipeContent.name,
     image: typeof recipeContent.image[0] === 'string' ? tryCleanupImageUrl(recipeContent.image[0]) : undefined,
     ingredients: [{ingredients}],
-    instructions: [{steps}],
+    instructions: [{
+      steps: steps.map(stepText => parseInstructionStep(stepText)),
+    }],
     notes: [],
   };
 }

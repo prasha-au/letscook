@@ -6,7 +6,7 @@ export const environment = {
   firebase: {
     apiKey: "AIzaSyDijIIfGK4eAzw_COUtYAqwgiJAahOEKEk",
     authDomain: "letscook-423ea.firebaseapp.com",
-    databaseURL: "https://letscook-423ea-default-rtdb.firebaseio.com",
+    databaseURL: "https://letscook-423ea.asia-southeast1.firebasedatabase.app/",
     projectId: "letscook-423ea",
     storageBucket: "letscook-423ea.appspot.com",
     messagingSenderId: "178577810807",
