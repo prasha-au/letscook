@@ -29,7 +29,7 @@ import { formatIngredientQuantity } from './helpers';
 
     <div class="row mt-4">
       <div class="col-10">
-        <input type="range" class="form-range" min="0" max="6" step="1" value="2" (change)="onScale($event.target!)">
+        <input type="range" class="form-range" min="0" max="6" step="1" value="2" (input)="onScale($event.target!)">
       </div>
       <div class="col-2">{{scale}}x</div>
     </div>
