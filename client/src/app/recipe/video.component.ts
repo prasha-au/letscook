@@ -1,7 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Recipe } from '../../../../interfaces';
-import { DomSanitizer } from '@angular/platform-browser';
-
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-recipe-video',
@@ -10,7 +9,7 @@ import { DomSanitizer } from '@angular/platform-browser';
   <div class="container">
     <div *ngIf="video">
       <div class="youtubeframe" *ngIf="video.type === 'youtube'">
-        <iframe width="100%" [src]="sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/' + video.id)"></iframe>
+        <iframe width="100%" [src]="getSafeUrl('https://www.youtube.com/embed/'+ video.id)"></iframe>
       </div>
     </div>
   </div>
@@ -32,13 +31,19 @@ import { DomSanitizer } from '@angular/platform-browser';
     }`
   ]
 })
-export class VideoComponent implements OnInit {
+export class VideoComponent {
 
   @Input() video?: Recipe['video'];
 
-  constructor(public sanitizer: DomSanitizer) { }
+  private cachedUrl?: { rawUrl: string; safeUrl: SafeResourceUrl };
 
-  ngOnInit(): void {
+  constructor(private readonly sanitizer: DomSanitizer) { }
+
+  public getSafeUrl(url: string): SafeResourceUrl {
+    if (this.cachedUrl?.rawUrl !== url) {
+      this.cachedUrl = { rawUrl: url, safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url) };
+    }
+    return this.cachedUrl.safeUrl;
   }
 
 }

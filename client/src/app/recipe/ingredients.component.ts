@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IngredientGroup } from '../../../../interfaces';
 import { formatIngredientQuantity } from './helpers';
 
+const SCALE_VALUES = [0.25, 0.5, 1, 1.5, 2, 3, 4];
+
 @Component({
   selector: 'app-recipe-ingredients',
   template: `
@@ -29,7 +31,7 @@ import { formatIngredientQuantity } from './helpers';
 
     <div class="row mt-4">
       <div class="col-10">
-        <input type="range" class="form-range" min="0" max="6" step="1" value="2" (input)="onScale($event.target!)">
+        <input type="range" class="form-range" min="0" max="6" step="1" [value]="toScaleIndex(scale)" (input)="onScale($event.target!)">
       </div>
       <div class="col-2">{{scale}}x</div>
     </div>
@@ -47,7 +49,8 @@ export class IngredientsComponent {
   @Input() checkedItems!: string[];
   @Output() checkedItemsChange = new EventEmitter<string[]>();
 
-  public scale: number = 1;
+  @Input() scale!: number;
+  @Output() scaleChange = new EventEmitter<number>();
 
   onChecked(input: EventTarget) {
     const id = (<HTMLInputElement>input).id;
@@ -64,8 +67,11 @@ export class IngredientsComponent {
   public formatIngredientQuantity = formatIngredientQuantity;
 
   onScale(input: EventTarget) {
-    const SCALE_VALUES = [0.25, 0.5, 1, 1.5, 2, 3, 4];
     const scaleIndex = parseInt((<HTMLInputElement>input).value, 10);
-    this.scale = SCALE_VALUES[scaleIndex % SCALE_VALUES.length];
+    this.scaleChange.emit(SCALE_VALUES[scaleIndex % SCALE_VALUES.length]);
+  }
+
+  toScaleIndex(scale: number) {
+    return SCALE_VALUES.indexOf(scale);
   }
 }

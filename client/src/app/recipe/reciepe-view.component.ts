@@ -40,17 +40,17 @@ type TabType = (typeof AVAILABLE_TABS)[number];
       </div>
 
       <div class="h-100 overflow-auto" (touchstart)="swipe($event, 'start')" (touchend)="swipe($event, 'end')"  [@animTabs]="animationState">
-        <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
+        <app-recipe-ingredients [hidden]="visibleTab != 'ingredients'" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems" [(scale)]="scale"></app-recipe-ingredients>
 
-        <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe.instructions" (addTimer)="timerRequest = $event"></app-recipe-instructions>
+        <app-recipe-instructions [hidden]="visibleTab != 'instructions'" [instructionGroups]="recipe.instructions" (addTimer)="timerRequest = $event"></app-recipe-instructions>
 
-        <app-recipe-video *ngIf="visibleTab == 'video'" [video]="recipe.video"></app-recipe-video>
+        <app-recipe-video [hidden]="visibleTab != 'video'" [video]="recipe.video"></app-recipe-video>
 
-        <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe.notes"></app-recipe-notes>
+        <app-recipe-notes [hidden]="visibleTab != 'notes'" [notes]="recipe.notes"></app-recipe-notes>
 
-        <div *ngIf="visibleTab == 'split'" class="container-fluid pt-3 h-100">
+        <div [hidden]="visibleTab != 'split'" class="container-fluid pt-3 h-100">
           <div class="row h-100">
-            <app-recipe-ingredients class="col-lg-5 split-col overflow-auto pb-3" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
+            <app-recipe-ingredients class="col-lg-5 split-col overflow-auto pb-3" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems" [(scale)]="scale"></app-recipe-ingredients>
             <div class="container d-lg-none px-4 mb-4"><hr></div>
             <app-recipe-instructions class="col-lg split-col overflow-auto pb-3" [instructionGroups]="recipe.instructions" (addTimer)="timerRequest = $event"></app-recipe-instructions>
           </div>
@@ -85,6 +85,8 @@ export class RecipeViewComponent {
   public visibleTab: TabType = 'split';
 
   public checkedItems: string[] = [];
+
+  public scale: number = 1;
 
   public showOptions: boolean = false;
 
