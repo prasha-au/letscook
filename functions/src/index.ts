@@ -6,7 +6,7 @@ import {ParseRequest, TableName} from '../../interfaces';
 import {getParseRequest, setRecipe, syncMetadataForRecipe, updateParseRequest} from './database';
 
 admin.initializeApp({
-  databaseURL: 'https://letscook-423ea.asia-southeast1.firebasedatabase.app/'
+  databaseURL: 'https://letscook-423ea.asia-southeast1.firebasedatabase.app/',
 });
 
 

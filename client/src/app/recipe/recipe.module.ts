@@ -7,6 +7,7 @@ import { NotesComponent } from './notes.component';
 import { RecipeViewComponent } from './reciepe-view.component';
 import { RouterModule } from '@angular/router';
 import { TimerComponent } from './timer.component';
+import { VideoComponent } from './video.component';
 
 
 @NgModule({
@@ -16,6 +17,7 @@ import { TimerComponent } from './timer.component';
     IngredientsComponent,
     InstructionsComponent,
     NotesComponent,
+    VideoComponent,
     TimerComponent,
   ],
   imports: [

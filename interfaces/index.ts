@@ -29,6 +29,7 @@ export interface Recipe {
   url: string;
   name: string;
   image?: string;
+  video?: { type: 'youtube', id: string };
   ingredients: IngredientGroup[];
   instructions: InstructionGroup[];
   notes: string[];

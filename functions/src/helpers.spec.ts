@@ -142,47 +142,47 @@ describe('parseInstructionStep', () => {
   }
 
   it('should be able to parse plain numbers', () => {
-    assertTimer('Simmer for 1 minute', { text: '1 minute', duration: 60 * 1000 });
-    assertTimer('Wait for 20 seconds', { text: '20 seconds', duration: 20 * 1000 });
+    assertTimer('Simmer for 1 minute', {text: '1 minute', duration: 60 * 1000});
+    assertTimer('Wait for 20 seconds', {text: '20 seconds', duration: 20 * 1000});
   });
 
   it('should be able to parse decimals', () => {
-    assertTimer('Simmer for 1.5minutes', { text: '1.5minutes', duration: 1.5 * 60 * 1000 });
+    assertTimer('Simmer for 1.5minutes', {text: '1.5minutes', duration: 1.5 * 60 * 1000});
   });
 
   it('should be able to parse fractions with a full amount', () => {
-    assertTimer('Should sit for 2 1/2 mins', { text: '2 1/2 mins', duration: 2.5 * 60 * 1000 });
+    assertTimer('Should sit for 2 1/2 mins', {text: '2 1/2 mins', duration: 2.5 * 60 * 1000});
   });
 
   it('should be able to parse pure fractional amounts', () => {
-    assertTimer('About a 1/2 hour should be enough', { text: '1/2 hour', duration: 0.5 * 60 * 60 * 1000 });
+    assertTimer('About a 1/2 hour should be enough', {text: '1/2 hour', duration: 0.5 * 60 * 60 * 1000});
   });
 
   it('should be able to parse a combination of units', () => {
-    assertTimer('Leave for 2mins 15secs', { text: '2mins 15secs', duration: (2 * 60 + 15) * 1000 });
-    assertTimer('Bake for 1hr 15mins', { text: '1hr 15mins', duration: (60 + 15) * 60 * 1000 });
+    assertTimer('Leave for 2mins 15secs', {text: '2mins 15secs', duration: (2 * 60 + 15) * 1000});
+    assertTimer('Bake for 1hr 15mins', {text: '1hr 15mins', duration: (60 + 15) * 60 * 1000});
   });
 
   it('should be able to parse various unit formats', () => {
-    assertTimer('Simmer for 1sec', { text: '1sec', duration: 1000 });
-    assertTimer('Simmer for 5secs', { text: '5secs', duration: 5 * 1000 });
-    assertTimer('Simmer for 1 second', { text: '1 second', duration: 1000 });
-    assertTimer('Simmer for 5 seconds', { text: '5 seconds', duration: 5 * 1000 });
+    assertTimer('Simmer for 1sec', {text: '1sec', duration: 1000});
+    assertTimer('Simmer for 5secs', {text: '5secs', duration: 5 * 1000});
+    assertTimer('Simmer for 1 second', {text: '1 second', duration: 1000});
+    assertTimer('Simmer for 5 seconds', {text: '5 seconds', duration: 5 * 1000});
 
-    assertTimer('Simmer for 1min', { text: '1min', duration: 60 * 1000 });
-    assertTimer('Simmer for 5mins', { text: '5mins', duration: 5 * 60 * 1000 });
-    assertTimer('Simmer for 1 minute', { text: '1 minute', duration: 60 * 1000 });
-    assertTimer('Simmer for 5 minutes', { text: '5 minutes', duration: 5 * 60 * 1000 });
+    assertTimer('Simmer for 1min', {text: '1min', duration: 60 * 1000});
+    assertTimer('Simmer for 5mins', {text: '5mins', duration: 5 * 60 * 1000});
+    assertTimer('Simmer for 1 minute', {text: '1 minute', duration: 60 * 1000});
+    assertTimer('Simmer for 5 minutes', {text: '5 minutes', duration: 5 * 60 * 1000});
 
-    assertTimer('Simmer for 1hr', { text: '1hr', duration: 60 * 60 * 1000 });
-    assertTimer('Simmer for 5hrs', { text: '5hrs', duration: 5 * 60 * 60 * 1000 });
-    assertTimer('Simmer for 1 hour', { text: '1 hour', duration: 60 * 60 * 1000 });
-    assertTimer('Simmer for 5 hours', { text: '5 hours', duration: 5 * 60 * 60 * 1000 });
+    assertTimer('Simmer for 1hr', {text: '1hr', duration: 60 * 60 * 1000});
+    assertTimer('Simmer for 5hrs', {text: '5hrs', duration: 5 * 60 * 60 * 1000});
+    assertTimer('Simmer for 1 hour', {text: '1 hour', duration: 60 * 60 * 1000});
+    assertTimer('Simmer for 5 hours', {text: '5 hours', duration: 5 * 60 * 60 * 1000});
   });
 
   it('should pick the later value if a range is given', () => {
-    assertTimer('Sit between 30 to 40 minutes', { text: '40 minutes', duration: 40 * 60 * 1000 });
-    assertTimer('Whisk for 10-20seconds', { text: '20seconds', duration: 20 * 1000 });
+    assertTimer('Sit between 30 to 40 minutes', {text: '40 minutes', duration: 40 * 60 * 1000});
+    assertTimer('Whisk for 10-20seconds', {text: '20seconds', duration: 20 * 1000});
   });
 
   it('should return an empty array if no timers are found', () => {
@@ -191,13 +191,13 @@ describe('parseInstructionStep', () => {
 
   it('should return multiple values if multiple timers are round', () => {
     expect(parseInstructionStep('Bake for 20 minutes then let it sit for 5mins').timers).toEqual([
-      { text: '20 minutes', duration: 20 * 60 * 1000 },
-      { text: '5mins', duration: 5 * 60 * 1000 },
+      {text: '20 minutes', duration: 20 * 60 * 1000},
+      {text: '5mins', duration: 5 * 60 * 1000},
     ]);
   });
 
   it('should return the full text value that was passed', () => {
     const textValue = 'Some text value';
     expect(parseInstructionStep(textValue).text).toEqual(textValue);
-  })
+  });
 });

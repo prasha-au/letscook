@@ -5,7 +5,8 @@ import { right, left } from '../animations';
 import { Recipe } from '../../../../interfaces';
 import type { TimerRequest } from './timer.component';
 
-type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
+const AVAILABLE_TABS = ['ingredients', 'instructions', 'video',  'notes', 'split'] as const;
+type TabType = (typeof AVAILABLE_TABS)[number];
 
 @Component({
   selector: 'app-recipe-view',
@@ -33,6 +34,7 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
       <div class="text-center mb-4 section-links">
         <span (click)="setTab('ingredients')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'ingredients'">Ingredients</span>
         <span (click)="setTab('instructions')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'instructions'">Instructions</span>
+        <span *ngIf="recipe.video" (click)="setTab('video')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'video'">Video</span>
         <span *ngIf="recipe.notes?.length" (click)="setTab('notes')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'notes'">Notes</span>
         <span (click)="setTab('split')" class="mx-3 tab-text" [class.inactive]="visibleTab != 'split'">Split</span>
       </div>
@@ -41,6 +43,8 @@ type TabType = 'ingredients' | 'instructions' | 'notes' | 'split';
         <app-recipe-ingredients *ngIf="visibleTab == 'ingredients'" [ingredientGroups]="recipe.ingredients" [(checkedItems)]="checkedItems"></app-recipe-ingredients>
 
         <app-recipe-instructions *ngIf="visibleTab == 'instructions'" [instructionGroups]="recipe.instructions" (addTimer)="timerRequest = $event"></app-recipe-instructions>
+
+        <app-recipe-video *ngIf="visibleTab == 'video'" [video]="recipe.video"></app-recipe-video>
 
         <app-recipe-notes *ngIf="visibleTab == 'notes'" [notes]="recipe.notes"></app-recipe-notes>
 
@@ -78,7 +82,6 @@ export class RecipeViewComponent {
 
   public animationState: number = 1;
 
-  private readonly availableTabs: TabType[] = ['ingredients', 'instructions', 'notes', 'split'];
   public visibleTab: TabType = 'split';
 
   public checkedItems: string[] = [];
@@ -95,17 +98,17 @@ export class RecipeViewComponent {
   ) {}
 
   setTab(tab: TabType) {
-    const currentIndex = this.availableTabs.indexOf(this.visibleTab);
-    const newIndex = this.availableTabs.indexOf(tab);
+    const currentIndex = AVAILABLE_TABS.indexOf(this.visibleTab);
+    const newIndex = AVAILABLE_TABS.indexOf(tab);
 
     this.visibleTab = tab;
     this.animationState += newIndex > currentIndex ? 1 : -1;
   }
 
   moveTabs(direction: 'next' | 'previous') {
-    const currentIndex = this.availableTabs.indexOf(this.visibleTab);
-    const newIndex = (currentIndex + (direction === 'next' ? 1 : -1)) % this.availableTabs.length;
-    this.visibleTab = this.availableTabs[newIndex < 0 ? this.availableTabs.length - 1 : newIndex];
+    const currentIndex = AVAILABLE_TABS.indexOf(this.visibleTab);
+    const newIndex = (currentIndex + (direction === 'next' ? 1 : -1)) % AVAILABLE_TABS.length;
+    this.visibleTab = AVAILABLE_TABS[newIndex < 0 ? AVAILABLE_TABS.length - 1 : newIndex];
     this.animationState += direction === 'next' ? 1 : -1;
   }
 

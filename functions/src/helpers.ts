@@ -1,4 +1,4 @@
-import type {IngredientGroup, InstructionStep, ResolvedUrl} from '../../interfaces';
+import type {IngredientGroup, InstructionStep, Recipe, ResolvedUrl} from '../../interfaces';
 import _ from 'lodash';
 import {parseIngredient as parseIngredientLib, unitsOfMeasure} from 'parse-ingredient';
 
@@ -129,10 +129,10 @@ function parseUnit(valueStr: string) {
 
 export function parseInstructionStep(text: string): InstructionStep {
   const matches = text.matchAll(/(((?:\d+\.\d)|(?:\d+\s+\d+\/\d+)|(?:\d+\/\d+)|\d+)\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?)\s?)+/gm);
-  const timers = Array.from(matches).map(match => {
-    const values = match[0] !== match[1]
-      ? Array.from(match[0].matchAll(/((\d+)\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?)+)/gm)).map(v => v[0])
-      : [match[0]];
+  const timers = Array.from(matches).map((match) => {
+    const values = match[0] !== match[1] ?
+      Array.from(match[0].matchAll(/((\d+)\s?(seconds?|secs?|minutes?|mins?|hours?|hrs?)+)/gm)).map((v) => v[0]) :
+      [match[0]];
 
     const finalValue = values.reduce((acc, curr) => {
       const durationValue = parseDurationValue(curr);
@@ -140,7 +140,16 @@ export function parseInstructionStep(text: string): InstructionStep {
       return acc + (durationValue ?? 0) * (modifier ?? 0);
     }, 0);
 
-    return finalValue === 0 ? undefined : { text: match[0].trim(), duration: Math.round(finalValue) };
+    return finalValue === 0 ? undefined : {text: match[0].trim(), duration: Math.round(finalValue)};
   }).filter((v): v is Exclude<typeof v, undefined> => v !== undefined);
-  return { text, timers };
+  return {text, timers};
+}
+
+
+export function tryFindVideoUrl(text: string): Recipe['video'] {
+  const youtubeEmbedMatch = text.match(/(?:youtube\.com|youtu\.be)\/embed\/(.*)\?/i);
+  if (youtubeEmbedMatch) {
+    return {type: 'youtube', id: youtubeEmbedMatch[1]};
+  }
+  return undefined;
 }

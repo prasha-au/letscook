@@ -67,7 +67,7 @@ export async function scrape(page: Page, url: string): Promise<Recipe> {
     image: typeof recipeContent.image[0] === 'string' ? tryCleanupImageUrl(recipeContent.image[0]) : undefined,
     ingredients: [{ingredients}],
     instructions: [{
-      steps: steps.map(stepText => parseInstructionStep(stepText)),
+      steps: steps.map((stepText) => parseInstructionStep(stepText)),
     }],
     notes: [],
   };
