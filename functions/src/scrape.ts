@@ -1,14 +1,12 @@
 import {EXTRA_PAGE_HEADERS} from './helpers';
 import puppeteer from 'puppeteer';
 import {scrape as wrpmScrape} from './scrapers/wprm';
-import {scrape as tasteScrape} from './scrapers/taste';
 import {scrape as ldschemaScrape} from './scrapers/ldschema';
 import type {Recipe} from '../../interfaces';
 
 let browser: puppeteer.Browser;
 
 const scrapers = {
-  tasteScrape,
   wrpmScrape,
   ldschemaScrape,
 } as const;

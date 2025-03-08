@@ -48,10 +48,10 @@ export function parseIngredient(ingredient: string): Omit<IngredientGroup['ingre
     ingredient = ingredient.replace(fracMatch[0], (parseInt(fracMatch[1]) / parseInt(fracMatch[2])).toFixed(2));
   }
   ingredient = ingredient
-      .replace('half', '0.5')
-      .replace('quarter', '0.25')
-      .replace('third', '0.33')
-      .replace(/(\d+)L/, '$1 liter');
+    .replace('half', '0.5')
+    .replace('quarter', '0.25')
+    .replace('third', '0.33')
+    .replace(/(\d+)L/, '$1 liter');
 
   function addUomAlternates(key: string, alternates: string[]) {
     return {[key]: {...unitsOfMeasure[key], alternates: [...unitsOfMeasure[key].alternates, ...alternates]}};
@@ -113,17 +113,17 @@ function parseDurationValue(valueStr: string) {
 function parseUnit(valueStr: string) {
   const unit = valueStr.match(/(seconds?|secs?|minutes?|mins?|hours?|hrs?)/gm)?.[0].toLowerCase().replace(/s$/, '');
   switch (unit) {
-    case 'second':
-    case 'sec':
-      return 1000;
-    case 'minute':
-    case 'min':
-      return 60 * 1000;
-    case 'hour':
-    case 'hr':
-      return 60 * 60 * 1000;
-    default:
-      return undefined;
+  case 'second':
+  case 'sec':
+    return 1000;
+  case 'minute':
+  case 'min':
+    return 60 * 1000;
+  case 'hour':
+  case 'hr':
+    return 60 * 60 * 1000;
+  default:
+    return undefined;
   }
 }
 

@@ -52,11 +52,11 @@ describe('cleanUndefinedValues', () => {
 describe('tryCleanupImageUrl', () => {
   it('should remove -<width>x<height> from image url', () => {
     expect(tryCleanupImageUrl('https://www.site.com/vegan-chilli-500x200.jpg'))
-        .toBe('https://www.site.com/vegan-chilli.jpg');
+      .toBe('https://www.site.com/vegan-chilli.jpg');
   });
   it('should strip url parameters', () => {
     expect(tryCleanupImageUrl('https://www.site.com/vegan-chilli.jpg?abc=123'))
-        .toBe('https://www.site.com/vegan-chilli.jpg');
+      .toBe('https://www.site.com/vegan-chilli.jpg');
   });
 });
 
